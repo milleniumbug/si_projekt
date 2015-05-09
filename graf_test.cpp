@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <atomic>
+#include <deque>
 #include <future>
 #include <algorithm>
 #include <cassert>
@@ -36,7 +37,11 @@ struct WlasnosciWierzcholka
 	}
 };
 
-const double predkosc_wyparowania_feromonu = 0.1;
+double obecny_poziom_feromonu(double zawartosc, int nr_tury)
+{
+	//return zawartosc -= 0.1*nr_tury;
+	return zawartosc * std::pow(0.99999, nr_tury);
+}
 
 typedef boost::adjacency_list<boost::vecS, 
                               boost::vecS,
@@ -50,7 +55,7 @@ private:
 	GrafZFeromonami::vertex_descriptor pozycja_;
 	GrafZFeromonami* graf_;
 	RandomNumberGenerator ran_;
-	double stopien_wyparowania_feromonu_;
+	int nr_tury_;
 
 protected:
 	const Derived& derived() const
@@ -65,7 +70,8 @@ public:
 	MrowkaBase(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, RandomNumberGenerator ran) :
 		pozycja_(pozycja),
 		graf_(&graf),
-		ran_(ran)
+		ran_(ran),
+		nr_tury_(0)
 	{
 		
 	}
@@ -84,7 +90,9 @@ public:
 			auto docelowy = boost::target(e, graf);
 			docelowe.push_back(docelowy);
 			// UWAGA - tu dotykamy danych w grafie
-			wartosci_feromonow.push_back(graf[docelowy].feromony.load() - stopien_wyparowania_feromonu_);
+			double poziom_feromonu = graf[docelowy].feromony.load();
+			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
+			wartosci_feromonow.push_back(poziom_feromonu);
 		});
 		double ocena = derived().ocen_wierzcholek(pozycja_, docelowe, graf);
 		// UWAGA - tu dotykamy danych w grafie
@@ -101,7 +109,7 @@ public:
 		boost::random::discrete_distribution<> dist(wartosci_feromonow.begin(), wartosci_feromonow.end());
 		int wylosowany_indeks_wierzcholka = dist(ran_);
 		pozycja_ = docelowe[wylosowany_indeks_wierzcholka];
-		stopien_wyparowania_feromonu_ += predkosc_wyparowania_feromonu;
+		++nr_tury_;
 		return true;
 	}
 
@@ -115,12 +123,12 @@ public:
 	//MrowkaBase& operator=(MrowkaBase&&) = default;
 };
 
-class MrowkaKlika : public MrowkaBase<MrowkaKlika, boost::random::minstd_rand>
+class MrowkaKlikaV1 : public MrowkaBase<MrowkaKlikaV1, boost::random::minstd_rand>
 {
 private:
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> odwiedzone_;
 public:
-	MrowkaKlika(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, random_number_generator ran) :
+	MrowkaKlikaV1(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, random_number_generator ran) :
 		MrowkaBase(graf, pozycja, ran)
 	{
 		
@@ -141,21 +149,51 @@ public:
 	}
 };
 
+class MrowkaKlikaV2 : public MrowkaBase<MrowkaKlikaV2, boost::random::minstd_rand>
+{
+private:
+	std::deque<GrafZFeromonami::vertex_descriptor> odwiedzone_;
+public:
+	MrowkaKlikaV2(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, random_number_generator ran) :
+		MrowkaBase(graf, pozycja, ran)
+	{
+
+	}
+
+
+	double ocen_wierzcholek(GrafZFeromonami::vertex_descriptor ten_wierzcholek, const std::vector<GrafZFeromonami::vertex_descriptor>& sasiedzi, GrafZFeromonami& graf)
+	{
+		assert(!sasiedzi.empty());
+
+		double ile_juz_odwiedzonych = std::count_if(sasiedzi.begin(), sasiedzi.end(), [&](GrafZFeromonami::vertex_descriptor v)
+		{
+			return std::find(odwiedzone_.begin(), odwiedzone_.end(), v) != odwiedzone_.end();
+		});
+		double ilosc_sasiadow = sasiedzi.size();
+		odwiedzone_.push_back(ten_wierzcholek);
+		if(odwiedzone_.size() > 35)
+			odwiedzone_.pop_front();
+		return ile_juz_odwiedzonych / ilosc_sasiadow;
+	}
+};
+
 void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = std::thread::hardware_concurrency())
 {
 	std::random_device rd;
 	boost::random::mt19937 mt(rd());
+	typedef MrowkaKlikaV2 Mrowka;
+	static const int ilosc_ruchow = 10000;
 
-	std::vector<std::vector<MrowkaKlika>> mrowiska(ilosc_watkow);
+	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 	for(int i = 0; i < ilosc_watkow; ++i)
 		for(int j = 0; j < 1000; ++j)
-			mrowiska[i].push_back(MrowkaKlika(graf, boost::random_vertex(graf, mt), MrowkaKlika::random_number_generator(rd())));
+			mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, mt), Mrowka::random_number_generator(rd())));
 	std::vector<std::future<void>> wyniki(ilosc_watkow);
 	for(int i = 0; i < ilosc_watkow; ++i)
 	{
-		wyniki[i] = std::async(std::launch::async, [](std::vector<MrowkaKlika>& mrowisko)
+		wyniki[i] = std::async(std::launch::async, [](std::vector<Mrowka>& mrowisko)
 		{
-			for(int i = 0; i < 10000; ++i)
+			for(int i = 0; i < ilosc_ruchow; ++i)
 				for(auto& mrowka : mrowisko)
 					mrowka.nastepny_ruch();
 		}, std::ref(mrowiska[i]));
@@ -168,7 +206,7 @@ void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = std::thread::hardwar
 	std::for_each(vertices.first, vertices.second, [&](GrafZFeromonami::vertex_descriptor v)
 	{
 		double x = graf[v].feromony.load();
-		x -= 10000 * predkosc_wyparowania_feromonu;
+		x = obecny_poziom_feromonu(x, ilosc_ruchow);
 		graf[v].feromony.store(x);
 	});
 }
@@ -204,13 +242,39 @@ void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf)
 	serializuj_do_dot(os, graf, vert_set.first, vert_set.second);
 }
 
+template<typename MutableGraph, typename RandomNumberGenerator>
+void wygeneruj_graf_z_klika(MutableGraph& graf, int ilosc_wierzcholkow, int ilosc_krawedzi_hint, int ilosc_wierzcholkow_w_klice, RandomNumberGenerator& rng)
+{
+	boost::generate_random_graph(graf, ilosc_wierzcholkow, ilosc_krawedzi_hint, rng);
+	std::unordered_set<typename boost::graph_traits<MutableGraph>::vertex_descriptor> klika;
+	while(klika.size() < ilosc_wierzcholkow_w_klice)
+	{
+		klika.insert(boost::random_vertex(graf, rng));
+	}
+	for(auto& left : klika)
+	{
+		boost::remove_out_edge_if(left, [&](typename boost::graph_traits<MutableGraph>::edge_descriptor edge)
+		{
+			return klika.find(boost::target(edge, graf)) != klika.end();
+		}, graf);
+		for(auto& right : klika)
+		{
+			if(left != right)
+			{
+				boost::add_edge(left, right, graf);
+			}
+		}
+	}
+}
+
 void test()
 {
 	GrafZFeromonami graf;
 	std::random_device rd;
 	boost::random::mt19937 mt(rd());
 
-	boost::generate_random_graph(graf, 50, 150, mt);
+	wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
+	//boost::generate_random_graph(graf, 50, 150, mt);
 	mrowki(graf);
 
 	auto vertices = boost::vertices(graf);
@@ -220,11 +284,10 @@ void test()
 		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
 	});
 	serializuj_do_dot(std::cout, graf, sorted_vertices.begin(), sorted_vertices.end());
-
 	std::cout << "\n\n";
 
 	kliki_klasycznie(graf);
-	
+	std::cout << "\n\n";
 }
 
 #include <boost/graph/bron_kerbosch_all_cliques.hpp>
@@ -240,7 +303,12 @@ struct kliki_o_rozmiarze
 	{
 		if(p.size() == rozmiar)
 		{
-			serializuj_do_dot(std::cout, g, p.begin(), p.end());
+			std::vector<GrafZFeromonami::vertex_descriptor> sorted_vertices(p.begin(), p.end());
+			std::sort(sorted_vertices.begin(), sorted_vertices.end(), [&](GrafZFeromonami::vertex_descriptor lhs, GrafZFeromonami::vertex_descriptor rhs)
+			{
+				return g[lhs].feromony.load() > g[rhs].feromony.load();
+			});
+			serializuj_do_dot(std::cout, g, sorted_vertices.begin(), sorted_vertices.end());
 		}
 	}
 	std::size_t rozmiar;
