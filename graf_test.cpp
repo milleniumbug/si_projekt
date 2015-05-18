@@ -47,7 +47,7 @@ double obecny_poziom_feromonu(double zawartosc, int nr_tury)
 typedef boost::adjacency_list<boost::vecS, 
                               boost::vecS,
                               boost::undirectedS,
-							  WlasnosciWierzcholka> GrafZFeromonami;
+                              WlasnosciWierzcholka> GrafZFeromonami;
 
 template<typename Derived, typename RandomNumberGenerator>
 class MrowkaBase
