@@ -1,3 +1,4 @@
+﻿// MSVS ENCODING BULLSHIT DISABLING DIRECTIVE: ZAŻÓŁĆ 象形字 áéíóúüñ 🖕📶 📷 💵 
 #include <iostream>
 #include <iomanip>
 #include <atomic>
@@ -105,7 +106,7 @@ public:
 			} while(!graf[pozycja_].feromony.compare_exchange_weak(stare, nowe));
 		}
 
-		// wyl�duj na docelowym wierzcho�ku w zale�no�ci od warto�ci feromonu
+		// wyląduj na docelowym wierzchołku w zależności od wartości feromonu
 		boost::random::discrete_distribution<> dist(wartosci_feromonow.begin(), wartosci_feromonow.end());
 		int wylosowany_indeks_wierzcholka = dist(ran_);
 		pozycja_ = docelowe[wylosowany_indeks_wierzcholka];
@@ -115,8 +116,8 @@ public:
 
 	typedef RandomNumberGenerator random_number_generator;
 
-	// JEB SI� VISUAL STUDIO
-	// PIERDOLONE KURWA ZERO WSPARCIA DLA KONSTRUKTOR�W PRZENOSZ�CYCH
+	// JEB SIĘ VISUAL STUDIO
+	// PIERDOLONE KURWA ZERO WSPARCIA DLA KONSTRUKTORÓW PRZENOSZĄCYCH
 	//MrowkaBase(const MrowkaBase&) = delete;
 	//MrowkaBase& operator=(const MrowkaBase&) = delete;
 	//MrowkaBase(MrowkaBase&&) = default;
