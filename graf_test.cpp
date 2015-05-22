@@ -119,7 +119,7 @@ public:
 		double nowe;
 		do
 		{
-			nowe = stare + derived().ocen_wierzcholek(pozycja_, docelowe, graf);
+			nowe = stare + derived().ocen_wierzcholek(pozycja_, docelowe);
 		} while(!graf[edges[wylosowany_indeks_wierzcholka]].feromony.compare_exchange_weak(stare, nowe));
 
 
@@ -148,7 +148,7 @@ public:
 
 	}
 
-	double ocen_wierzcholek(GrafZFeromonami::vertex_descriptor ten_wierzcholek, const std::vector<GrafZFeromonami::vertex_descriptor>& sasiedzi, GrafZFeromonami& graf)
+	double ocen_wierzcholek(GrafZFeromonami::vertex_descriptor ten_wierzcholek, const std::vector<GrafZFeromonami::vertex_descriptor>& sasiedzi)
 	{
 		assert(!sasiedzi.empty());
 
