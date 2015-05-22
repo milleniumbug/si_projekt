@@ -50,37 +50,38 @@ typedef boost::adjacency_list<boost::vecS,
 	boost::undirectedS,
 	boost::no_property,
 	WlasnosciWierzcholka> GrafZFeromonami;
-// Ten kod powinien znajdować klikę z wybraną ilością brakujących krawędzi (zalecenie prowadzącego) - nie robi tego
+/* Ten kod powinien znajdować klikę z wybraną ilością brakujących krawędzi (zalecenie prowadzącego) - nie robi tego
 void znajdz_klike_z_punktu(GrafZFeromonami::vertex_descriptor pozycja, double min_node_percent, const GrafZFeromonami& graf)
 {
-	struct ResultContainer {
-		int missing_nodes;
-		GrafZFeromonami::vertex_descriptor pos;
-	};
-	std::vector<ResultContainer> res;
-	std::vector<GrafZFeromonami::vertex_descriptor> base_clique;
-	std::deque<GrafZFeromonami::vertex_descriptor> finder;
-	finder.push_back(pozycja);
+struct ResultContainer{
+int missing_nodes;
+GrafZFeromonami::vertex_descriptor pos;
+};
+std::vector<ResultContainer> res;
+std::vector<GrafZFeromonami::vertex_descriptor> base_clique;
+std::deque<GrafZFeromonami::vertex_descriptor> finder;
+finder.push_back(pozycja);
 
-	while(!finder.empty())
-	{
-		GrafZFeromonami::vertex_descriptor poz = finder.back();
-		finder.pop_back();
+while (!finder.empty())
+{
+GrafZFeromonami::vertex_descriptor poz = finder.back();
+finder.pop_back();
 
-		auto list = boost::out_edges(poz, graf);
-		std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
-		{
-			auto docelowy = boost::target(e, graf);
-		});
-	}
-	std::cout << std::endl;
-	std::for_each(res.begin(), res.end(), [&](ResultContainer& e)
-	{
-		std::cout << e.pos << " ";
-	});
-	std::cout << std::endl;
+auto list = boost::out_edges(poz, graf);
+std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
+{
+auto docelowy = boost::target(e, graf);
+
+});
 }
-
+std::cout << std::endl;
+std::for_each(res.begin(), res.end(), [&](GrafZFeromonami::vertex_descriptor e)
+{
+std::cout << e << " ";
+});
+std::cout << std::endl;
+}
+*/
 template<typename Derived, typename RandomNumberGenerator>
 class MrowkaBase
 {
@@ -104,7 +105,7 @@ protected:
 public:
 	~MrowkaBase()
 	{
-		znajdz_klike_z_punktu(pozycja_, 200.0f, *graf_);
+		// znajdz_klike_z_punktu(pozycja_, 200.0f, *graf_);
 	}
 	MrowkaBase(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, RandomNumberGenerator ran) :
 		pozycja_(pozycja),
