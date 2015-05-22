@@ -14,25 +14,25 @@
 #include <random>
 #include <boost/random.hpp>
 
-struct WlasnosciWierzcholka
+struct WlasnosciKrawedzi
 {
 	std::atomic<double> feromony;
 
 	// Stupid workaround for lack support for noncopyable properties in Boost.Graph
 	// WARNING, ATTENTION, ALERT, ACHTUNG, UWAGA: NON-ATOMIC
-	WlasnosciWierzcholka(const WlasnosciWierzcholka& other)
+	WlasnosciKrawedzi(const WlasnosciKrawedzi& other)
 	{
 		this->feromony.store(other.feromony.load());
 	}
 
 	// WARNING, ATTENTION, ALERT, ACHTUNG, UWAGA: NON-ATOMIC
-	WlasnosciWierzcholka& operator=(const WlasnosciWierzcholka& other)
+	WlasnosciKrawedzi& operator=(const WlasnosciKrawedzi& other)
 	{
 		this->feromony.store(other.feromony.load());
 		return *this;
 	}
 
-	WlasnosciWierzcholka() :
+	WlasnosciKrawedzi() :
 		feromony(0.0)
 	{
 
@@ -49,7 +49,7 @@ typedef boost::adjacency_list<boost::vecS,
 	boost::vecS,
 	boost::undirectedS,
 	boost::no_property,
-	WlasnosciWierzcholka> GrafZFeromonami;
+	WlasnosciKrawedzi> GrafZFeromonami;
 /* Ten kod powinien znajdować klikę z wybraną ilością brakujących krawędzi (zalecenie prowadzącego) - nie robi tego
 void znajdz_klike_z_punktu(GrafZFeromonami::vertex_descriptor pozycja, double min_node_percent, const GrafZFeromonami& graf)
 {
