@@ -37,6 +37,20 @@ struct WlasnosciKrawedzi
 	}
 };
 
+// interlocked_increase
+// atomowo zwiększa wartość `value` o `what`
+// zwraca starą wartość `value` przed inkrementacją
+double interlocked_increase(std::atomic<double>& value, double what)
+{
+	double stare = value.load();
+	double nowe;
+	do
+	{
+		nowe = stare + what;
+	} while(!value.compare_exchange_weak(stare, nowe));
+	return stare;
+}
+
 double obecny_poziom_feromonu(double zawartosc, int nr_tury)
 {
 	return zawartosc * std::pow(0.999, nr_tury);
