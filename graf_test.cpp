@@ -179,15 +179,15 @@ template<typename RandomNumberGenerator>
 void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_watkow = std::thread::hardware_concurrency())
 {
 	typedef MrowkaKlika Mrowka;
-	static const int ilosc_ruchow = 5000;
-	static const int ilosc_mrowek = 1;
+	const int ilosc_ruchow = 5000;
+	const int ilosc_mrowek = 1;
 	assert(ilosc_watkow > 0);
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 
-	auto wypeln_mrowiska = [&mrowiska, &graf, &rng]()
+	auto wypeln_mrowiska = [&mrowiska, &graf, &rng, &ilosc_mrowek]()
 	{
-		for(int i = 0; i < ilosc_mrowek; ++j)
+		for(int i = 0; i < ilosc_mrowek; ++i)
 		{
 			const int obecne_mrowisko = i % mrowiska.size();
 			mrowiska[obecne_mrowisko].push_back(Mrowka(graf, boost::random_vertex(graf, rng), Mrowka::random_number_generator(rng())));
@@ -195,12 +195,12 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_w
 	};
 	wypeln_mrowiska();
 
-	auto symuluj_akcje_mrowek = [&graf, &mrowiska, &ilosc_watkow]()
+	auto symuluj_akcje_mrowek = [&graf, &mrowiska, &ilosc_watkow, &ilosc_ruchow]()
 	{
 		std::vector<std::future<void>> wyniki(ilosc_watkow);
 		for(int i = 0; i < ilosc_watkow; ++i)
 		{
-			wyniki[i] = std::async(std::launch::async, [](std::vector<Mrowka>& mrowisko)
+			wyniki[i] = std::async(std::launch::async, [&ilosc_ruchow](std::vector<Mrowka>& mrowisko)
 			{
 				for(int i = 0; i < ilosc_ruchow; ++i)
 					for(auto& mrowka : mrowisko)
@@ -212,7 +212,7 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_w
 	};
 	symuluj_akcje_mrowek();
 
-	auto ustaw_oczekiwane_wartosci_feromonu = [&graf]()
+	auto ustaw_oczekiwane_wartosci_feromonu = [&graf, &ilosc_ruchow]()
 	{
 		auto edges = boost::edges(graf);
 		std::for_each(edges.first, edges.second, [&](GrafZFeromonami::edge_descriptor v)
