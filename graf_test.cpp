@@ -84,8 +84,8 @@ protected:
 	}
 public:
 	MrowkaBase(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, RandomNumberGenerator ran) :
-		pozycja_(pozycja),
 		stara_pozycja_(pozycja),
+		pozycja_(pozycja),
 		graf_(&graf),
 		ran_(ran),
 		nr_tury_(0)
