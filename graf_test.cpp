@@ -103,10 +103,6 @@ protected:
 		return *static_cast<Derived*>(this);
 	}
 public:
-	~MrowkaBase()
-	{
-		// znajdz_klike_z_punktu(pozycja_, 200.0f, *graf_);
-	}
 	MrowkaBase(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, RandomNumberGenerator ran) :
 		pozycja_(pozycja),
 		stara_pozycja(pozycja),
@@ -115,11 +111,6 @@ public:
 		nr_tury_(0)
 	{
 
-	}
-	virtual double ocen_wierzcholek(GrafZFeromonami::vertex_descriptor ten_wierzcholek, const std::vector<GrafZFeromonami::vertex_descriptor>& sasiedzi, GrafZFeromonami& graf)
-	{
-		assert(false);
-		return 0;
 	}
 
 	bool nastepny_ruch()
@@ -162,7 +153,7 @@ public:
 		double nowe;
 		do
 		{
-			nowe = stare + ocen_wierzcholek(pozycja_, docelowe, graf);
+			nowe = stare + derived().ocen_wierzcholek(pozycja_, docelowe, graf);
 		} while(!graf[edges[wylosowany_indeks_wierzcholka]].feromony.compare_exchange_weak(stare, nowe));
 
 
@@ -202,8 +193,7 @@ public:
 
 	}
 
-
-	virtual double ocen_wierzcholek(GrafZFeromonami::vertex_descriptor ten_wierzcholek, const std::vector<GrafZFeromonami::vertex_descriptor>& sasiedzi, GrafZFeromonami& graf)
+	double ocen_wierzcholek(GrafZFeromonami::vertex_descriptor ten_wierzcholek, const std::vector<GrafZFeromonami::vertex_descriptor>& sasiedzi, GrafZFeromonami& graf)
 	{
 		assert(!sasiedzi.empty());
 
