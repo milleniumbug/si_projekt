@@ -129,8 +129,8 @@ public:
 
 	typedef RandomNumberGenerator random_number_generator;
 
-	// JEB SIĘ VISUAL STUDIO
-	// PIERDOLONE KURWA ZERO WSPARCIA DLA KONSTRUKTORÓW PRZENOSZĄCYCH
+	// GŁUPOTA VISUAL STUDIO
+	// to powinno działać, bo C++11, ale to VS2013, jeszcze nie dojrzał na tyle.
 	//MrowkaBase(const MrowkaBase&) = delete;
 	//MrowkaBase& operator=(const MrowkaBase&) = delete;
 	//MrowkaBase(MrowkaBase&&) = default;
