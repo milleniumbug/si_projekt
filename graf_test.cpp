@@ -111,8 +111,8 @@ public:
 			// UWAGA - tu dotykamy danych w grafie
 			double poziom_feromonu = graf[e].feromony.load();
 			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
-			double tmp = std::pow(poziom_feromonu, 1.1f) + 1;
-			if(docelowy == stara_pozycja) tmp = 0.0f;
+			double tmp = std::pow(poziom_feromonu, 1.1) + 1;
+			if(docelowy == stara_pozycja) tmp = 0.0;
 			wartosci_feromonow.push_back(tmp);
 		});
 
@@ -167,7 +167,7 @@ public:
 		});
 		double ilosc_sasiadow = sasiedzi.size();
 		poprzedni_zbior = sasiedzi;
-		return (ile_wspolnych / ilosc_sasiadow) * 200 * std::pow(ilosc_sasiadow, 0.75f);
+		return (ile_wspolnych / ilosc_sasiadow) * 200 * std::pow(ilosc_sasiadow, 0.75);
 	}
 };
 
