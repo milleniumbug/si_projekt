@@ -213,10 +213,11 @@ void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = 1)//std::thread::har
 	boost::random::mt19937 mt(rd());
 	typedef MrowkaKlikaV2 Mrowka;
 	static const int ilosc_ruchow = 5000;
+	static const int ilosc_mrowek_na_watek = 1;
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 	for(int i = 0; i < ilosc_watkow; ++i)
-		for(int j = 0; j < 1; ++j)
+		for(int j = 0; j < ilosc_mrowek_na_watek; ++j)
 			mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, mt), Mrowka::random_number_generator(rd())));
 	std::vector<std::future<void>> wyniki(ilosc_watkow);
 	for(int i = 0; i < ilosc_watkow; ++i)
