@@ -207,8 +207,9 @@ void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, PodzbiorGr
 	os << "strict graph {\n";
 	std::for_each(b, e, [&](GrafZFeromonami::edge_descriptor v)
 	{
-		os << v << " [ fer = " << std::fixed << graf[v].feromony.load() << ";]" << "\n";
+		os << boost::source(v, graf) << " -- " << boost::target(v, graf) << " [ fer = " << std::fixed << graf[v].feromony.load() << "; ]" << "\n";
 	});
+	os << "}\n";
 }
 
 template<typename MutableGraph, typename RandomNumberGenerator>
