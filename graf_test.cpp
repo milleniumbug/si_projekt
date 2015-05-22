@@ -184,9 +184,9 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_w
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 
-	auto wypeln_mrowiska = [&mrowiska, &ilosc_watkow, &graf, &rng]()
+	auto wypeln_mrowiska = [&mrowiska, &graf, &rng]()
 	{
-		for(int i = 0; i < ilosc_watkow; ++i)
+		for(int i = 0; i < mrowiska.size(); ++i)
 			for(int j = 0; j < ilosc_mrowek_na_watek; ++j)
 				mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, rng), Mrowka::random_number_generator(rng())));
 	};
