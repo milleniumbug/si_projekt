@@ -1,6 +1,5 @@
 ﻿#include <iostream>
 #include <ostream>
-//#define _SCL_SECURE_NO_WARNINGS
 #include <iomanip>
 #include <atomic>
 #include <deque>
@@ -10,7 +9,6 @@
 #include <unordered_map>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/random.hpp>
-//#include <boost/random/random_device.hpp>
 #include <random>
 #include <boost/random.hpp>
 
@@ -41,7 +39,6 @@ struct WlasnosciKrawedzi
 
 double obecny_poziom_feromonu(double zawartosc, int nr_tury)
 {
-	//return zawartosc -= 0.1*nr_tury;
 	return zawartosc * std::pow(0.999, nr_tury);
 }
 
@@ -50,38 +47,7 @@ typedef boost::adjacency_list<boost::vecS,
 	boost::undirectedS,
 	boost::no_property,
 	WlasnosciKrawedzi> GrafZFeromonami;
-/* Ten kod powinien znajdować klikę z wybraną ilością brakujących krawędzi (zalecenie prowadzącego) - nie robi tego
-void znajdz_klike_z_punktu(GrafZFeromonami::vertex_descriptor pozycja, double min_node_percent, const GrafZFeromonami& graf)
-{
-struct ResultContainer{
-int missing_nodes;
-GrafZFeromonami::vertex_descriptor pos;
-};
-std::vector<ResultContainer> res;
-std::vector<GrafZFeromonami::vertex_descriptor> base_clique;
-std::deque<GrafZFeromonami::vertex_descriptor> finder;
-finder.push_back(pozycja);
 
-while (!finder.empty())
-{
-GrafZFeromonami::vertex_descriptor poz = finder.back();
-finder.pop_back();
-
-auto list = boost::out_edges(poz, graf);
-std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
-{
-auto docelowy = boost::target(e, graf);
-
-});
-}
-std::cout << std::endl;
-std::for_each(res.begin(), res.end(), [&](GrafZFeromonami::vertex_descriptor e)
-{
-std::cout << e << " ";
-});
-std::cout << std::endl;
-}
-*/
 template<typename Derived, typename RandomNumberGenerator>
 class MrowkaBase
 {
@@ -159,17 +125,6 @@ public:
 
 		++nr_tury_;
 		return true;
-
-		/*double ocena = derived().ocen_wierzcholek(pozycja_, docelowe, graf);
-		// UWAGA - tu dotykamy danych w grafie
-		{
-		double stare = graf[pozycja_].feromony.load();
-		double nowe;
-		do
-		{
-		nowe = stare + ocena;
-		} while (!graf[pozycja_].feromony.compare_exchange_weak(stare, nowe));
-		}*/
 	}
 
 	typedef RandomNumberGenerator random_number_generator;
@@ -254,25 +209,7 @@ void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, PodzbiorGr
 	{
 		os << v << " [ fer = " << std::fixed << graf[v].feromony.load() << ";]" << "\n";
 	});
-	/*
-	os << "\n\n";
-
-	auto edge_set = boost::edges(graf);
-	std::for_each(edge_set.first, edge_set.second, [&](GrafZFeromonami::edge_descriptor e)
-	{
-	if (std::binary_search(vert_set.begin(), vert_set.end(), boost::source(e, graf)) &&
-	std::binary_search(vert_set.begin(), vert_set.end(), boost::target(e, graf)))
-	os << boost::source(e, graf) << " -- " << boost::target(e, graf) << "\n";
-	});
-	os << "}";*/
 }
-/*
-void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf)
-{
-auto vert_set = boost::edges(graf);
-serializuj_do_dot(os, graf, vert_set.first, vert_set.second);
-}*/
-
 
 template<typename MutableGraph, typename RandomNumberGenerator>
 void wygeneruj_graf_z_klika(MutableGraph& graf, int ilosc_wierzcholkow, int ilosc_krawedzi_hint, int ilosc_wierzcholkow_w_klice, RandomNumberGenerator& rng)
@@ -306,7 +243,6 @@ void test()
 	boost::random::mt19937 mt(rd());
 
 	wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-	//boost::generate_random_graph(graf, 50, 150, mt);
 	mrowki(graf);
 
 
@@ -346,33 +282,11 @@ struct clique_printer
 	}
 	OutputStream& os;
 	int minsize;
-};/*
-  struct kliki_o_rozmiarze
-  {
-  kliki_o_rozmiarze(std::size_t rozmiar)
-  : rozmiar(rozmiar)
-  { }
-
-  template <typename Clique, typename Graph>
-  inline void clique(const Clique& p, const Graph& g)
-  {
-  if (p.size() == rozmiar)
-  {
-  std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(p.begin(), p.end());
-  std::sort(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor lhs, GrafZFeromonami::edge_descriptor rhs)
-  {
-  return g[lhs].feromony.load() > g[rhs].feromony.load();
-  });
-  serializuj_do_dot(std::cout, g, sorted_edges.begin(), sorted_edges.end());
-  }
-  }
-  std::size_t rozmiar;
-  };*/
+};
 
 void kliki_klasycznie(GrafZFeromonami& graf)
 {
 	std::size_t size = 0;
 	clique_printer<std::ostream> vis(std::cout, 10);
 	boost::bron_kerbosch_all_cliques(graf, vis);
-	//boost::bron_kerbosch_all_cliques(graf, kliki_o_rozmiarze(size));
 }
