@@ -6,7 +6,7 @@
 #include <future>
 #include <algorithm>
 #include <cassert>
-#include <unordered_map>
+#include <unordered_set>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/random.hpp>
 #include <random>
