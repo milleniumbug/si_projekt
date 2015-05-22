@@ -250,11 +250,9 @@ void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, PodzbiorGr
 	std::vector<typename PodzbiorGrafuIterator::value_type> vert_set(b, e);
 	std::sort(vert_set.begin(), vert_set.end());
 	os << "strict graph {\n";
-	int i = 0;
 	std::for_each(b, e, [&](GrafZFeromonami::edge_descriptor v)
 	{
-		i++;
-		if(i<10) os << v << " [ fer = " << std::fixed << graf[v].feromony.load() << ";]" << "\n";
+		os << v << " [ fer = " << std::fixed << graf[v].feromony.load() << ";]" << "\n";
 	});
 	/*
 	os << "\n\n";
@@ -318,7 +316,7 @@ void test()
 	{
 		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
 	});
-	serializuj_do_dot(std::cout, graf, sorted_edges.begin(), sorted_edges.end());
+	serializuj_do_dot(std::cout, graf, sorted_edges.begin(), sorted_edges.begin()+10);
 	std::cout << "\n\n";
 
 	kliki_klasycznie(graf);
