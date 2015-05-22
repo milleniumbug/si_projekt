@@ -212,15 +212,26 @@ void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = std::thread::hardwar
 
 void kliki_klasycznie(GrafZFeromonami& graf);
 
-template<typename PodzbiorGrafuIterator>
-void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, PodzbiorGrafuIterator b, PodzbiorGrafuIterator e)
+template<typename VertexIterator, typename EdgeIterator>
+void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIterator vb, VertexIterator ve, EdgeIterator eb, EdgeIterator ee)
 {
 	os << "strict graph {\n";
-	std::for_each(b, e, [&](GrafZFeromonami::edge_descriptor v)
+	std::for_each(vb, ve, [&](GrafZFeromonami::vertex_descriptor vertex)
 	{
-		os << boost::source(v, graf) << " -- " << boost::target(v, graf) << " [ fer = " << std::fixed << graf[v].feromony.load() << "; ]" << "\n";
+		os << vertex << "\n";
+	});
+	std::for_each(eb, ee, [&](GrafZFeromonami::edge_descriptor edge)
+	{
+		os << boost::source(edge, graf) << " -- " << boost::target(edge, graf) << " [ fer = " << std::fixed << graf[edge].feromony.load() << "; ]" << "\n";
 	});
 	os << "}\n";
+}
+
+void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf)
+{
+	auto vertices = boost::vertices(graf);
+	auto edges = boost::edges(graf);
+	serializuj_do_dot(os, graf, vertices.first, vertices.second, edges.first, edges.second);
 }
 
 template<typename MutableGraph, typename RandomNumberGenerator>
@@ -264,7 +275,8 @@ void test()
 	{
 		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
 	});
-	serializuj_do_dot(std::cout, graf, sorted_edges.begin(), sorted_edges.begin()+10);
+	auto vertices = boost::vertices(graf);
+	serializuj_do_dot(std::cout, graf, vertices.first, vertices.second, sorted_edges.begin(), sorted_edges.begin()+10);
 	std::cout << "\n\n";
 
 	kliki_klasycznie(graf);
