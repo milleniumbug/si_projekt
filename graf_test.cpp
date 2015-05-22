@@ -175,21 +175,20 @@ public:
 	}
 };
 
-void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = std::thread::hardware_concurrency())
+template<typename RandomNumberGenerator>
+void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_watkow = std::thread::hardware_concurrency())
 {
-	std::random_device rd;
-	boost::random::mt19937 mt(rd());
 	typedef MrowkaKlika Mrowka;
 	static const int ilosc_ruchow = 5000;
 	static const int ilosc_mrowek_na_watek = 1;
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 
-	auto wypeln_mrowiska = [&mrowiska, &ilosc_watkow, &graf, &mt]()
+	auto wypeln_mrowiska = [&mrowiska, &ilosc_watkow, &graf, &rng]()
 	{
 		for(int i = 0; i < ilosc_watkow; ++i)
 			for(int j = 0; j < ilosc_mrowek_na_watek; ++j)
-				mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, mt), Mrowka::random_number_generator(rd())));
+				mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, rng), Mrowka::random_number_generator(rng())));
 	};
 	wypeln_mrowiska();
 
@@ -279,7 +278,7 @@ void test()
 	boost::random::mt19937 mt(rd());
 
 	wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-	mrowki(graf, 1);
+	mrowki(graf, mt, 1);
 
 
 	auto edges = boost::edges(graf);
