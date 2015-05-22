@@ -181,6 +181,7 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_w
 	typedef MrowkaKlika Mrowka;
 	static const int ilosc_ruchow = 5000;
 	static const int ilosc_mrowek = 1;
+	assert(ilosc_watkow > 0);
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 
