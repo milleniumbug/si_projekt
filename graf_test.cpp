@@ -180,15 +180,17 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_w
 {
 	typedef MrowkaKlika Mrowka;
 	static const int ilosc_ruchow = 5000;
-	static const int ilosc_mrowek_na_watek = 1;
+	static const int ilosc_mrowek = 1;
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 
 	auto wypeln_mrowiska = [&mrowiska, &graf, &rng]()
 	{
-		for(int i = 0; i < mrowiska.size(); ++i)
-			for(int j = 0; j < ilosc_mrowek_na_watek; ++j)
-				mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, rng), Mrowka::random_number_generator(rng())));
+		for(int i = 0; i < ilosc_mrowek; ++j)
+		{
+			const int obecne_mrowisko = i % mrowiska.size();
+			mrowiska[obecne_mrowisko].push_back(Mrowka(graf, boost::random_vertex(graf, rng), Mrowka::random_number_generator(rng())));
+		}
 	};
 	wypeln_mrowiska();
 
