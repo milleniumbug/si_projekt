@@ -184,30 +184,43 @@ void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = std::thread::hardwar
 	static const int ilosc_mrowek_na_watek = 1;
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
-	for(int i = 0; i < ilosc_watkow; ++i)
-		for(int j = 0; j < ilosc_mrowek_na_watek; ++j)
-			mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, mt), Mrowka::random_number_generator(rd())));
-	std::vector<std::future<void>> wyniki(ilosc_watkow);
-	for(int i = 0; i < ilosc_watkow; ++i)
+
+	auto wypeln_mrowiska = [&mrowiska, &ilosc_watkow, &graf, &mt]()
 	{
-		wyniki[i] = std::async(std::launch::async, [](std::vector<Mrowka>& mrowisko)
+		for(int i = 0; i < ilosc_watkow; ++i)
+			for(int j = 0; j < ilosc_mrowek_na_watek; ++j)
+				mrowiska[i].push_back(Mrowka(graf, boost::random_vertex(graf, mt), Mrowka::random_number_generator(rd())));
+	};
+	wypeln_mrowiska();
+
+	auto symuluj_akcje_mrowek = [&graf, &mrowiska, &ilosc_watkow]()
+	{
+		std::vector<std::future<void>> wyniki(ilosc_watkow);
+		for(int i = 0; i < ilosc_watkow; ++i)
 		{
-			for(int i = 0; i < ilosc_ruchow; ++i)
-				for(auto& mrowka : mrowisko)
-					mrowka.nastepny_ruch();
-		}, std::ref(mrowiska[i]));
-	}
+			wyniki[i] = std::async(std::launch::async, [](std::vector<Mrowka>& mrowisko)
+			{
+				for(int i = 0; i < ilosc_ruchow; ++i)
+					for(auto& mrowka : mrowisko)
+						mrowka.nastepny_ruch();
+			}, std::ref(mrowiska[i]));
+		}
+		for(auto& wynik : wyniki)
+			wynik.wait();
+	};
+	symuluj_akcje_mrowek();
 
-	for(auto& wynik : wyniki)
-		wynik.wait();
-
-	auto edges = boost::edges(graf);
-	std::for_each(edges.first, edges.second, [&](GrafZFeromonami::edge_descriptor v)
+	auto ustaw_oczekiwane_wartosci_feromonu = [&graf]()
 	{
-		double x = graf[v].feromony.load();
-		x = obecny_poziom_feromonu(x, ilosc_ruchow);
-		graf[v].feromony.store(x);
-	});
+		auto edges = boost::edges(graf);
+		std::for_each(edges.first, edges.second, [&](GrafZFeromonami::edge_descriptor v)
+		{
+			double x = graf[v].feromony.load();
+			x = obecny_poziom_feromonu(x, ilosc_ruchow);
+			graf[v].feromony.store(x);
+		});
+	};
+	ustaw_oczekiwane_wartosci_feromonu();
 }
 
 void kliki_klasycznie(GrafZFeromonami& graf);
