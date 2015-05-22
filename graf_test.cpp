@@ -95,7 +95,9 @@ public:
 
 	bool nastepny_ruch()
 	{
-		auto& graf = *graf_;
+		auto& zmienialny_graf = *graf_;
+		const auto& graf = zmienialny_graf;
+
 		auto list = boost::out_edges(pozycja_, graf);
 		if(list.first == list.second)
 			return false;
@@ -109,7 +111,7 @@ public:
 			docelowe.push_back(docelowy);
 			edges.push_back(e);
 			// UWAGA - tu dotykamy danych w grafie
-			double poziom_feromonu = graf[e].feromony.load();
+			double poziom_feromonu = zmienialny_graf[e].feromony.load();
 			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
 			double tmp = std::pow(poziom_feromonu, 1.1) + 1;
 			if(docelowy == stara_pozycja) tmp = 0.0;
@@ -130,7 +132,7 @@ public:
 			docelowe.push_back(docelowy);
 		});
 
-		interlocked_increase(graf[edges[wylosowany_indeks_wierzcholka]].feromony, derived().ocen_wierzcholek(pozycja_, docelowe));
+		interlocked_increase(zmienialny_graf[edges[wylosowany_indeks_wierzcholka]].feromony, derived().ocen_wierzcholek(pozycja_, docelowe));
 
 		++nr_tury_;
 		return true;
