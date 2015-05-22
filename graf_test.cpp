@@ -215,8 +215,6 @@ void kliki_klasycznie(GrafZFeromonami& graf);
 template<typename PodzbiorGrafuIterator>
 void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, PodzbiorGrafuIterator b, PodzbiorGrafuIterator e)
 {
-	std::vector<typename PodzbiorGrafuIterator::value_type> vert_set(b, e);
-	std::sort(vert_set.begin(), vert_set.end());
 	os << "strict graph {\n";
 	std::for_each(b, e, [&](GrafZFeromonami::edge_descriptor v)
 	{
