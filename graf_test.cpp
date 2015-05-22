@@ -137,12 +137,12 @@ public:
 	//MrowkaBase& operator=(MrowkaBase&&) = default;
 };
 
-class MrowkaKlikaV2 : public MrowkaBase<MrowkaKlikaV2, boost::random::minstd_rand>
+class MrowkaKlika : public MrowkaBase<MrowkaKlika, boost::random::minstd_rand>
 {
 private:
 	std::vector<GrafZFeromonami::vertex_descriptor> poprzedni_zbior;
 public:
-	MrowkaKlikaV2(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, random_number_generator ran) :
+	MrowkaKlika(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, random_number_generator ran) :
 		MrowkaBase(graf, pozycja, ran)
 	{
 
@@ -166,7 +166,7 @@ void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = std::thread::hardwar
 {
 	std::random_device rd;
 	boost::random::mt19937 mt(rd());
-	typedef MrowkaKlikaV2 Mrowka;
+	typedef MrowkaKlika Mrowka;
 	static const int ilosc_ruchow = 5000;
 	static const int ilosc_mrowek_na_watek = 1;
 
