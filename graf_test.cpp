@@ -129,13 +129,8 @@ public:
 			auto docelowy = boost::target(e, graf);
 			docelowe.push_back(docelowy);
 		});
-		double stare = graf[edges[wylosowany_indeks_wierzcholka]].feromony.load();
-		double nowe;
-		do
-		{
-			nowe = stare + derived().ocen_wierzcholek(pozycja_, docelowe);
-		} while(!graf[edges[wylosowany_indeks_wierzcholka]].feromony.compare_exchange_weak(stare, nowe));
 
+		interlocked_increase(graf[edges[wylosowany_indeks_wierzcholka]].feromony, derived().ocen_wierzcholek(pozycja_, docelowe));
 
 		++nr_tury_;
 		return true;
