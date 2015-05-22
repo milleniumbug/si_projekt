@@ -162,7 +162,7 @@ public:
 	}
 };
 
-void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = 1)//std::thread::hardware_concurrency()) - debug
+void mrowki(GrafZFeromonami& graf, const int ilosc_watkow = std::thread::hardware_concurrency())
 {
 	std::random_device rd;
 	boost::random::mt19937 mt(rd());
@@ -243,7 +243,7 @@ void test()
 	boost::random::mt19937 mt(rd());
 
 	wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-	mrowki(graf);
+	mrowki(graf, 1);
 
 
 	auto edges = boost::edges(graf);
