@@ -66,7 +66,7 @@ template<typename Derived, typename RandomNumberGenerator>
 class MrowkaBase
 {
 private:
-	GrafZFeromonami::vertex_descriptor stara_pozycja;
+	GrafZFeromonami::vertex_descriptor stara_pozycja_;
 	GrafZFeromonami::vertex_descriptor pozycja_;
 	GrafZFeromonami* graf_;
 	RandomNumberGenerator ran_;
@@ -85,7 +85,7 @@ protected:
 public:
 	MrowkaBase(GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor pozycja, RandomNumberGenerator ran) :
 		pozycja_(pozycja),
-		stara_pozycja(pozycja),
+		stara_pozycja_(pozycja),
 		graf_(&graf),
 		ran_(ran),
 		nr_tury_(0)
@@ -114,14 +114,14 @@ public:
 			double poziom_feromonu = zmienialny_graf[e].feromony.load();
 			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
 			double tmp = std::pow(poziom_feromonu, 1.1) + 1;
-			if(docelowy == stara_pozycja) tmp = 0.0;
+			if(docelowy == stara_pozycja_) tmp = 0.0;
 			wartosci_feromonow.push_back(tmp);
 		});
 
 		// wyląduj na docelowym wierzchołku w zależności od wartości feromonu
 		boost::random::discrete_distribution<> dist(wartosci_feromonow.begin(), wartosci_feromonow.end());
 		int wylosowany_indeks_wierzcholka = dist(ran_);
-		stara_pozycja = pozycja_;
+		stara_pozycja_ = pozycja_;
 		pozycja_ = docelowe[wylosowany_indeks_wierzcholka];
 
 		auto list2 = boost::out_edges(pozycja_, graf);
