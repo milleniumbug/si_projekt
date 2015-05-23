@@ -323,6 +323,32 @@ struct clique_printer
 	int minsize;
 };
 
+struct serializator_klik
+{
+	serializator_klik(std::ostream& os, int minimalny_rozmiar) :
+		os(os),
+		minimalny_rozmiar(minimalny_rozmiar)
+	{ }
+
+	template <typename Clique, typename Graph>
+	void clique(const Clique& c, const Graph& g)
+	{
+		if(c.size() < minimalny_rozmiar)
+			return;
+		
+		auto edges_source = boost::edges(g);
+		std::vector<typename Graph::edge_descriptor> edges;
+		std::unordered_set<typename Graph::vertex_descriptor> clique(c.begin(), c.end());
+		std::copy_if(edges_source.first, edges_source.second, std::back_inserter(edges), [&](typename Graph::edge_descriptor e)
+		{
+			return clique.find(boost::target(e, g)) != clique.end() && clique.find(boost::source(e, g)) != clique.end();
+		});
+		serializuj_do_dot(os, g, c.begin(), c.end(), edges.begin(), edges.end());
+	}
+	std::ostream& os;
+	int minimalny_rozmiar;
+};
+
 void kliki_klasycznie(GrafZFeromonami& graf)
 {
 	std::size_t size = 0;
