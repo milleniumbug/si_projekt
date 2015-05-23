@@ -108,15 +108,13 @@ public:
 		std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
 		{
 			auto docelowy = boost::target(e, graf);
-			if(docelowy == stara_pozycja_)
-				return;
-
 			docelowe.push_back(docelowy);
 			edges.push_back(e);
 			// UWAGA - tu dotykamy danych w grafie
 			double poziom_feromonu = zmienialny_graf[e].feromony.load();
 			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
 			poziom_feromonu = std::pow(poziom_feromonu, 1.1) + 1;
+			poziom_feromonu = (docelowy == stara_pozycja_) ? 0 : poziom_feromonu;
 			wartosci_feromonow.push_back(poziom_feromonu);
 		});
 
