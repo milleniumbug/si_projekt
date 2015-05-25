@@ -363,8 +363,9 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 	}
 }
 
-void test(GrafZFeromonami& graf, boost::random::mt19937& mt)
+void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold)
 {
+	assert(threshold >= 0 && threshold <= 1);
 	mrowki(graf, mt, 50, 4);
 
 	auto edges = boost::edges(graf);
@@ -377,7 +378,7 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt)
 	serializuj_do_dot(std::cout, graf, vertices.first, vertices.second, sorted_edges.begin(), sorted_edges.end());
 	std::cout << "\n\n";
 
-	auto kl = znajdz_klike_w_punkcie(graf, boost::target(sorted_edges.front(), graf), 0.5*graf[sorted_edges.front()].feromony.load());
+	auto kl = znajdz_klike_w_punkcie(graf, boost::target(sorted_edges.front(), graf), threshold*graf[sorted_edges.front()].feromony.load());
 
 	std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
 	std::cout << "\n\n";
@@ -393,7 +394,7 @@ void testuj_kolejne(unsigned int seed)
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-		test(graf, mt);
+		test(graf, mt, 0.1);
 	}
 	{
 		boost::random::mt19937 mt(seed);
@@ -419,7 +420,7 @@ void testuj_kolejne(unsigned int seed)
 
 		auto prawy = mapV[prawy_g2];
 		boost::add_edge(lewy, prawy, graf);
-		test(graf, mt);
+		test(graf, mt, 0.1);
 	}
 }
 
