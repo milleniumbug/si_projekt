@@ -268,7 +268,7 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_m
 	ustaw_oczekiwane_wartosci_feromonu();
 }
 
-void kliki_klasycznie(GrafZFeromonami& graf);
+void kliki_klasycznie(const GrafZFeromonami& graf);
 
 template<typename VertexIterator, typename EdgeIterator>
 void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIterator vb, VertexIterator ve, EdgeIterator eb, EdgeIterator ee)
@@ -361,15 +361,9 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 	}
 }
 
-void test()
+void test(GrafZFeromonami& graf, boost::random::mt19937& mt)
 {
-	GrafZFeromonami graf;
-	std::random_device rd;
-	boost::random::mt19937 mt(rd());
-
-	wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
 	mrowki(graf, mt, 50, 4);
-
 
 	auto edges = boost::edges(graf);
 	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
@@ -388,6 +382,24 @@ void test()
 
 	kliki_klasycznie(graf);
 	std::cout << "\n\n";
+}
+
+void testuj_kolejne(unsigned int seed)
+{
+	std::cout << "SEED: " << seed << "\n\n";
+	{
+		boost::random::mt19937 mt(seed);
+		GrafZFeromonami graf;
+		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
+		test(graf, mt);
+	}
+}
+
+void testuj_kolejne()
+{
+	std::random_device rd;
+	auto seed = rd();
+	testuj_kolejne(seed);
 }
 
 #include <boost/graph/bron_kerbosch_all_cliques.hpp>
@@ -441,7 +453,7 @@ struct serializator_klik
 	int minimalny_rozmiar;
 };
 
-void kliki_klasycznie(GrafZFeromonami& graf)
+void kliki_klasycznie(const GrafZFeromonami& graf)
 {
 	clique_printer<std::ostream> vis(std::cout, 10);
 	boost::bron_kerbosch_all_cliques(graf, vis);
