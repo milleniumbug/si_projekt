@@ -361,7 +361,6 @@ struct serializator_klik
 
 void kliki_klasycznie(GrafZFeromonami& graf)
 {
-	std::size_t size = 0;
 	clique_printer<std::ostream> vis(std::cout, 10);
 	boost::bron_kerbosch_all_cliques(graf, vis);
 }
