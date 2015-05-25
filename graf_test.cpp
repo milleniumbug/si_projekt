@@ -10,6 +10,8 @@
 #include <iterator>
 #include <unordered_set>
 #include <map>
+#include <cmath>
+#include <limits>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/random.hpp>
 #include <boost/graph/copy.hpp>
@@ -389,12 +391,14 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold)
 
 void testuj_kolejne(unsigned int seed)
 {
+	// najmniejsza liczba dodatnia
+	const double zeroplus = std::nextafter(0.0, std::numeric_limits<double>::infinity());
 	std::cout << "SEED: " << seed << "\n\n";
 	{
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-		test(graf, mt, 0.1);
+		test(graf, mt, zeroplus);
 	}
 	{
 		boost::random::mt19937 mt(seed);
@@ -420,7 +424,7 @@ void testuj_kolejne(unsigned int seed)
 
 		auto prawy = mapV[prawy_g2];
 		boost::add_edge(lewy, prawy, graf);
-		test(graf, mt, 0.1);
+		test(graf, mt, zeroplus);
 	}
 }
 
