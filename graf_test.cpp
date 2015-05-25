@@ -62,6 +62,8 @@ typedef boost::adjacency_list<boost::vecS,
 	boost::no_property,
 	WlasnosciKrawedzi> GrafZFeromonami;
 
+std::map<GrafZFeromonami::vertex_descriptor, std::string> namemap;
+	
 template<typename Derived, typename RandomNumberGenerator>
 class MrowkaBase
 {
@@ -281,6 +283,50 @@ void wygeneruj_graf_z_klika(MutableGraph& graf, int ilosc_wierzcholkow, int ilos
 				boost::add_edge(left, right, graf);
 			}
 		}
+	}
+}
+
+void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
+{
+	std::ifstream fin;
+	std::vector<GrafZFeromonami::vertex_descriptor> vertex_list;
+
+	fin.open(filename.c_str());
+	assert(fin);
+	std::string s1;
+	while (std::getline(fin, s1))
+	{
+		std::stringstream tmp(s1);
+		std::string s2;
+		std::getline(tmp, s2, ' ');
+		int i1 = atoi(s2.c_str());
+		while (vertex_list.size() <= i1)
+		{
+			GrafZFeromonami::vertex_descriptor v = boost::add_vertex(graf);
+			vertex_list.push_back(v);
+		}
+		while (std::getline(tmp, s2,' '))
+		{
+			int i2 = atoi(s2.c_str());
+			while (vertex_list.size() <= i2)
+			{
+				GrafZFeromonami::vertex_descriptor v = boost::add_vertex(graf);
+				vertex_list.push_back(v);
+			}
+			boost::add_edge(vertex_list[i1], vertex_list[i2], graf);
+		}
+	}
+	fin.close();
+	fin.open(mapfile.c_str());
+	while (std::getline(fin, s1))
+	{
+		std::stringstream tmp(s1);
+		std::string s2;
+		std::getline(tmp, s2, '	');
+		std::string s3;
+		std::getline(tmp, s3, '	');
+		int i = atoi(s3.c_str());
+		namemap.insert(std::pair<GrafZFeromonami::vertex_descriptor, std::string>(vertex_list[i], s2));
 	}
 }
 
