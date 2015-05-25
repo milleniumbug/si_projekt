@@ -1,22 +1,4 @@
-﻿#include <iostream>
-#include <ostream>
-#include <fstream>
-#include <iomanip>
-#include <atomic>
-#include <deque>
-#include <future>
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-#include <unordered_set>
-#include <map>
-#include <cmath>
-#include <limits>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/random.hpp>
-#include <boost/graph/copy.hpp>
-#include <random>
-#include <boost/random.hpp>
+﻿#include "stdafx.h"
 
 struct WlasnosciKrawedzi
 {
