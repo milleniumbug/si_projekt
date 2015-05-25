@@ -104,16 +104,17 @@ public:
 		auto& zmienialny_graf = *graf_;
 		const auto& graf = zmienialny_graf;
 
-		auto list = boost::out_edges(pozycja_, graf);
-		if(list.first == list.second)
+		std::vector<GrafZFeromonami::edge_descriptor> edges;
+		{
+			auto list = boost::out_edges(pozycja_, graf);
+			std::copy(list.first, list.second, std::back_inserter(edges));
+		}
+
+		if(edges.empty())
 			return false;
 
-		
-		std::vector<GrafZFeromonami::edge_descriptor> edges;
 		std::vector<double> wartosci_feromonow;
-		std::copy(list.first, list.second, std::back_inserter(edges));
-		
-		std::transform(list.first, list.second, std::back_inserter(wartosci_feromonow), [&](GrafZFeromonami::edge_descriptor e)
+		std::transform(edges.begin(), edges.end(), std::back_inserter(wartosci_feromonow), [&](GrafZFeromonami::edge_descriptor e)
 		{
 			if(boost::target(e, graf) == stara_pozycja_)
 				return 0.0;
@@ -130,12 +131,14 @@ public:
 
 		ustaw_nowa_pozycje(boost::target(wylosowana_krawedz, graf));
 
-		auto list2 = boost::out_edges(pozycja_, graf);
 		std::vector<GrafZFeromonami::vertex_descriptor> docelowe;
-		std::transform(list2.first, list2.second, std::back_inserter(docelowe), [&graf](GrafZFeromonami::edge_descriptor e)
 		{
-			return boost::target(e, graf);
-		});
+			auto list = boost::out_edges(pozycja_, graf);
+			std::transform(list.first, list.second, std::back_inserter(docelowe), [&graf](GrafZFeromonami::edge_descriptor e)
+			{
+				return boost::target(e, graf);
+			});
+		}
 
 		interlocked_increase(zmienialny_graf[wylosowana_krawedz].feromony, derived().ocen_wierzcholek(pozycja_, docelowe));
 
