@@ -109,7 +109,16 @@ public:
 		{
 			auto docelowy = boost::target(e, graf);
 			docelowe.push_back(docelowy);
-			edges.push_back(e);
+		});
+
+		std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
+		{
+			edges.push_back(e);			
+		});
+
+		std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
+		{
+			auto docelowy = boost::target(e, graf);
 			// UWAGA - tu dotykamy danych w grafie
 			double poziom_feromonu = zmienialny_graf[e].feromony.load();
 			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
@@ -121,8 +130,13 @@ public:
 		// wyląduj na docelowym wierzchołku w zależności od wartości feromonu
 		boost::random::discrete_distribution<> dist(wartosci_feromonow.begin(), wartosci_feromonow.end());
 		int wylosowany_indeks_wierzcholka = dist(ran_);
-		stara_pozycja_ = pozycja_;
-		pozycja_ = docelowe[wylosowany_indeks_wierzcholka];
+
+		auto ustaw_nowa_pozycje = [&](GrafZFeromonami::vertex_descriptor vertex)
+		{
+			stara_pozycja_ = pozycja_;
+			pozycja_ = vertex;
+		};
+		ustaw_nowa_pozycje(docelowe[wylosowany_indeks_wierzcholka]);
 
 		auto list2 = boost::out_edges(pozycja_, graf);
 		docelowe.clear();
@@ -278,7 +292,7 @@ void test()
 	boost::random::mt19937 mt(rd());
 
 	wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-	mrowki(graf, mt, 1, 1);
+	mrowki(graf, mt, 50, 4);
 
 
 	auto edges = boost::edges(graf);
@@ -288,7 +302,7 @@ void test()
 		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
 	});
 	auto vertices = boost::vertices(graf);
-	serializuj_do_dot(std::cout, graf, vertices.first, vertices.second, sorted_edges.begin(), sorted_edges.begin()+10);
+	serializuj_do_dot(std::cout, graf, vertices.first, vertices.second, sorted_edges.begin(), sorted_edges.end());
 	std::cout << "\n\n";
 
 	kliki_klasycznie(graf);
