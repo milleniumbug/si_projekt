@@ -105,18 +105,14 @@ public:
 		std::vector<GrafZFeromonami::vertex_descriptor> docelowe;
 		std::vector<GrafZFeromonami::edge_descriptor> edges;
 		std::vector<double> wartosci_feromonow;
-		std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
+		std::copy(list.first, list.second, std::back_inserter(edges));
+		std::transform(list.first, list.second, std::back_inserter(docelowe), [&graf](GrafZFeromonami::edge_descriptor e)
 		{
-			auto docelowy = boost::target(e, graf);
-			docelowe.push_back(docelowy);
+			return boost::target(e, graf);
 		});
+		
 
-		std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
-		{
-			edges.push_back(e);			
-		});
-
-		std::for_each(list.first, list.second, [&](GrafZFeromonami::edge_descriptor e)
+		std::transform(list.first, list.second, std::back_inserter(wartosci_feromonow), [&](GrafZFeromonami::edge_descriptor e)
 		{
 			auto docelowy = boost::target(e, graf);
 			// UWAGA - tu dotykamy danych w grafie
@@ -124,7 +120,7 @@ public:
 			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
 			poziom_feromonu = std::pow(poziom_feromonu, 1.1) + 1;
 			poziom_feromonu = (docelowy == stara_pozycja_) ? 0 : poziom_feromonu;
-			wartosci_feromonow.push_back(poziom_feromonu);
+			return poziom_feromonu;
 		});
 
 		// wyląduj na docelowym wierzchołku w zależności od wartości feromonu
@@ -140,10 +136,9 @@ public:
 
 		auto list2 = boost::out_edges(pozycja_, graf);
 		docelowe.clear();
-		std::for_each(list2.first, list2.second, [&](GrafZFeromonami::edge_descriptor e)
+		std::transform(list2.first, list2.second, std::back_inserter(docelowe), [&graf](GrafZFeromonami::edge_descriptor e)
 		{
-			auto docelowy = boost::target(e, graf);
-			docelowe.push_back(docelowy);
+			return boost::target(e, graf);
 		});
 
 		interlocked_increase(zmienialny_graf[edges[wylosowany_indeks_wierzcholka]].feromony, derived().ocen_wierzcholek(pozycja_, docelowe));
