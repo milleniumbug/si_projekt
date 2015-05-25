@@ -375,12 +375,15 @@ void testuj_kolejne(unsigned int seed)
 {
 	// najmniejsza liczba dodatnia
 	const double zeroplus = std::nextafter(0.0, std::numeric_limits<double>::infinity());
-	std::cout << "SEED: " << seed << "\n\n";
+	const double threshold = 0.0001;
+	std::cout << "SEED: " << seed << "\n";
+	std::cout << "THRESHOLD: " << threshold << "\n";
+	std::cout << "\n";
 	{
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-		test(graf, mt, zeroplus);
+		test(graf, mt, threshold);
 	}
 	{
 		boost::random::mt19937 mt(seed);
@@ -406,7 +409,7 @@ void testuj_kolejne(unsigned int seed)
 
 		auto prawy = mapV[prawy_g2];
 		boost::add_edge(lewy, prawy, graf);
-		test(graf, mt, zeroplus);
+		test(graf, mt, threshold);
 	}
 }
 
