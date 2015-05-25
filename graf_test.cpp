@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <ostream>
+#include <fstream>
 #include <iomanip>
 #include <atomic>
 #include <deque>
