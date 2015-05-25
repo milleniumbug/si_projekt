@@ -411,6 +411,12 @@ void testuj_kolejne(unsigned int seed)
 		boost::add_edge(lewy, prawy, graf);
 		test(graf, mt, threshold);
 	}
+	{
+		boost::random::mt19937 mt(seed);
+		GrafZFeromonami graf;
+		zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
+		test(graf, mt, threshold);
+	}
 }
 
 void testuj_kolejne()
