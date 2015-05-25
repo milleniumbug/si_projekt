@@ -8,6 +8,7 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	extern void testuj_kolejne(unsigned int);
 	extern void testuj_kolejne();
 	testuj_kolejne();
 }
