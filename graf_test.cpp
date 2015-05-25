@@ -73,6 +73,12 @@ private:
 
 	int nr_tury_;
 
+	void ustaw_nowa_pozycje(GrafZFeromonami::vertex_descriptor nowa_pozycja)
+	{
+		stara_pozycja_ = pozycja_;
+		pozycja_ = nowa_pozycja;
+	}
+
 protected:
 	const Derived& derived() const
 	{
@@ -111,7 +117,6 @@ public:
 			return boost::target(e, graf);
 		});
 		
-
 		std::transform(list.first, list.second, std::back_inserter(wartosci_feromonow), [&](GrafZFeromonami::edge_descriptor e)
 		{
 			auto docelowy = boost::target(e, graf);
@@ -127,11 +132,6 @@ public:
 		boost::random::discrete_distribution<> dist(wartosci_feromonow.begin(), wartosci_feromonow.end());
 		int wylosowany_indeks_wierzcholka = dist(ran_);
 
-		auto ustaw_nowa_pozycje = [&](GrafZFeromonami::vertex_descriptor vertex)
-		{
-			stara_pozycja_ = pozycja_;
-			pozycja_ = vertex;
-		};
 		ustaw_nowa_pozycje(docelowe[wylosowany_indeks_wierzcholka]);
 
 		auto list2 = boost::out_edges(pozycja_, graf);
