@@ -130,9 +130,9 @@ public:
 
 		// wyląduj na docelowym wierzchołku w zależności od wartości feromonu
 		boost::random::discrete_distribution<> dist(wartosci_feromonow.begin(), wartosci_feromonow.end());
-		int wylosowany_indeks_wierzcholka = dist(ran_);
+		int wylosowany_indeks_krawedzi = dist(ran_);
 
-		ustaw_nowa_pozycje(docelowe[wylosowany_indeks_wierzcholka]);
+		ustaw_nowa_pozycje(docelowe[wylosowany_indeks_krawedzi]);
 
 		auto list2 = boost::out_edges(pozycja_, graf);
 		docelowe.clear();
@@ -141,7 +141,7 @@ public:
 			return boost::target(e, graf);
 		});
 
-		interlocked_increase(zmienialny_graf[edges[wylosowany_indeks_wierzcholka]].feromony, derived().ocen_wierzcholek(pozycja_, docelowe));
+		interlocked_increase(zmienialny_graf[edges[wylosowany_indeks_krawedzi]].feromony, derived().ocen_wierzcholek(pozycja_, docelowe));
 
 		++nr_tury_;
 		return true;
