@@ -108,14 +108,10 @@ public:
 		if(list.first == list.second)
 			return false;
 
-		std::vector<GrafZFeromonami::vertex_descriptor> docelowe;
+		
 		std::vector<GrafZFeromonami::edge_descriptor> edges;
 		std::vector<double> wartosci_feromonow;
 		std::copy(list.first, list.second, std::back_inserter(edges));
-		std::transform(list.first, list.second, std::back_inserter(docelowe), [&graf](GrafZFeromonami::edge_descriptor e)
-		{
-			return boost::target(e, graf);
-		});
 		
 		std::transform(list.first, list.second, std::back_inserter(wartosci_feromonow), [&](GrafZFeromonami::edge_descriptor e)
 		{
@@ -135,7 +131,7 @@ public:
 		ustaw_nowa_pozycje(boost::target(wylosowana_krawedz, graf));
 
 		auto list2 = boost::out_edges(pozycja_, graf);
-		docelowe.clear();
+		std::vector<GrafZFeromonami::vertex_descriptor> docelowe;
 		std::transform(list2.first, list2.second, std::back_inserter(docelowe), [&graf](GrafZFeromonami::edge_descriptor e)
 		{
 			return boost::target(e, graf);
