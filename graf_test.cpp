@@ -174,11 +174,10 @@ public:
 };
 
 template<typename RandomNumberGenerator>
-void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_watkow = std::thread::hardware_concurrency())
+void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_mrowek, const int ilosc_watkow = std::thread::hardware_concurrency())
 {
 	typedef MrowkaKlika Mrowka;
 	const int ilosc_ruchow = 5000;
-	const int ilosc_mrowek = 1;
 	assert(ilosc_watkow > 0);
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
@@ -279,7 +278,7 @@ void test()
 	boost::random::mt19937 mt(rd());
 
 	wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-	mrowki(graf, mt, 1);
+	mrowki(graf, mt, 1, 1);
 
 
 	auto edges = boost::edges(graf);
