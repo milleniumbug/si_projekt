@@ -7,6 +7,7 @@
 #include <future>
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <unordered_set>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/random.hpp>
@@ -64,6 +65,35 @@ typedef boost::adjacency_list<boost::vecS,
 	WlasnosciKrawedzi> GrafZFeromonami;
 
 std::map<GrafZFeromonami::vertex_descriptor, std::string> namemap;
+
+std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold)
+{
+	std::unordered_set<GrafZFeromonami::vertex_descriptor> klika;
+	klika.insert(v);
+	struct my_visitor : boost::default_bfs_visitor {
+		std::unordered_set<GrafZFeromonami::vertex_descriptor>& klika;
+		double threshold;
+
+		void examine_edge(const GrafZFeromonami::edge_descriptor &e, const GrafZFeromonami &g) const {
+			double ilosc = g[e].feromony.load();
+			auto s = boost::source(e, g);
+			auto t = boost::target(e, g);
+			if(klika.find(s) != klika.end() && ilosc >= threshold)
+				klika.insert(t);
+		}
+
+		my_visitor(std::unordered_set<GrafZFeromonami::vertex_descriptor>& klika, double threshold) :
+			klika(klika),
+			threshold(threshold)
+		{
+			
+		}
+	};
+	boost::breadth_first_search(graf, v, boost::visitor(my_visitor(klika, threshold)));
+	std::vector<GrafZFeromonami::vertex_descriptor> k(klika.begin(), klika.end());
+	std::sort(k.begin(), k.end());
+	return k;
+}
 	
 template<typename Derived, typename RandomNumberGenerator>
 class MrowkaBase
@@ -349,6 +379,11 @@ void test()
 	});
 	auto vertices = boost::vertices(graf);
 	serializuj_do_dot(std::cout, graf, vertices.first, vertices.second, sorted_edges.begin(), sorted_edges.end());
+	std::cout << "\n\n";
+
+	auto kl = znajdz_klike_w_punkcie(graf, boost::target(sorted_edges.front(), graf), 0.5*graf[sorted_edges.front()].feromony.load());
+
+	std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
 	std::cout << "\n\n";
 
 	kliki_klasycznie(graf);
