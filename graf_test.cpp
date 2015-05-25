@@ -359,7 +359,11 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold)
 		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
 	});
 	auto vertices = boost::vertices(graf);
-	serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), sorted_edges.end());
+	auto koniec_krawedzi_niezerowych = std::stable_partition(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor edge)
+	{
+		return graf[edge].feromony.load() > 0.0;
+	});
+	serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych);
 	std::cout << "\n\n";
 
 	auto kl = znajdz_klike_w_punkcie(graf, boost::target(sorted_edges.front(), graf), threshold*graf[sorted_edges.front()].feromony.load());
