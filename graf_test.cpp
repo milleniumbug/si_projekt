@@ -143,6 +143,11 @@ public:
 		return true;
 	}
 
+	int wykonano_ruchow() const
+	{
+		return nr_tury_;
+	}
+
 	typedef RandomNumberGenerator random_number_generator;
 
 	// GŁUPOTA VISUAL STUDIO
