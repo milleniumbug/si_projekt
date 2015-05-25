@@ -9,8 +9,10 @@
 #include <cassert>
 #include <iterator>
 #include <unordered_set>
+#include <map>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/random.hpp>
+#include <boost/graph/copy.hpp>
 #include <random>
 #include <boost/random.hpp>
 
@@ -391,6 +393,32 @@ void testuj_kolejne(unsigned int seed)
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
+		test(graf, mt);
+	}
+	{
+		boost::random::mt19937 mt(seed);
+		GrafZFeromonami graf, graf2;
+		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
+		wygeneruj_graf_z_klika(graf2, 100, 150, 30, mt);
+		
+		auto prawy_g2 = boost::random_vertex(graf2, mt);
+		auto lewy = boost::random_vertex(graf, mt);
+
+		// source: http://stackoverflow.com/a/24332273/1012936
+		typedef GrafZFeromonami graph_t;
+		typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_t;
+		typedef boost::property_map<graph_t, boost::vertex_index_t>::type index_map_t;
+
+		typedef boost::iterator_property_map<typename std::vector<vertex_t>::iterator,
+			index_map_t, vertex_t, vertex_t&> IsoMap;
+
+		std::vector<vertex_t> isoValues(boost::num_vertices(graf2));
+		IsoMap mapV(isoValues.begin());
+
+		boost::copy_graph(graf2, graf, boost::orig_to_copy(mapV));
+
+		auto prawy = mapV[prawy_g2];
+		boost::add_edge(lewy, prawy, graf);
 		test(graf, mt);
 	}
 }
