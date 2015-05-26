@@ -6,7 +6,7 @@
 #include "loader.h"
 #include <iostream>
 
-int _tmain(int argc, _TCHAR* argv[])
+int main()
 {
 	extern void testuj_kolejne(unsigned int);
 	extern void testuj_kolejne();
