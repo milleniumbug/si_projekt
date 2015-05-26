@@ -1,0 +1,8 @@
+- saturacja feromonów
+- przyœpieszenie BFSa
+- znajdowanie wszystkich, nie jednej kliki
+- sprawozdanie
+- wizualizacja z kolorkami i ca³ym grafem
+- eksperymentowaæ dalej
+- regulowaæ poziom i iloœæ mrówek
+- usuwanie znalezionych klik

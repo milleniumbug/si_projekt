@@ -80,6 +80,7 @@
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
     <Text Include="ReadMe.txt" />
+    <Text Include="ToDo.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="container.h" />

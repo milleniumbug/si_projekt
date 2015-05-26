@@ -17,6 +17,7 @@
   <ItemGroup>
     <Text Include="ReadMe.txt" />
     <Text Include="CMakeLists.txt" />
+    <Text Include="ToDo.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
