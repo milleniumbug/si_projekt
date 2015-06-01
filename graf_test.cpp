@@ -52,6 +52,14 @@ typedef boost::adjacency_list<boost::vecS,
 
 std::map<GrafZFeromonami::vertex_descriptor, std::string> namemap;
 
+void usun_klike(std::vector<GrafZFeromonami::vertex_descriptor> vertexlist, GrafZFeromonami& graf)
+{
+	for (GrafZFeromonami::vertex_descriptor vertex : vertexlist)
+	{
+		remove_vertex(vertex, graf);
+	}
+}
+
 std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold)
 {
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> klika;
@@ -262,7 +270,12 @@ void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIter
 	os << "strict graph {\n";
 	std::for_each(vb, ve, [&](GrafZFeromonami::vertex_descriptor vertex)
 	{
-		os << vertex << "\n";
+		if (!namemap.empty())
+		{
+			
+			os << vertex << " [ name = " << namemap[vertex] << "]\n";
+		}
+		else os << vertex << "\n";
 	});
 	std::for_each(eb, ee, [&](GrafZFeromonami::edge_descriptor edge)
 	{
@@ -347,7 +360,7 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 	}
 }
 
-void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold)
+void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold,bool continous)
 {
 	assert(threshold >= 0 && threshold <= 1);
 	mrowki(graf, mt, 50, 4);
@@ -387,7 +400,7 @@ void testuj_kolejne(unsigned int seed)
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-		test(graf, mt, threshold);
+		test(graf, mt, threshold,false);
 	}
 	{
 		boost::random::mt19937 mt(seed);
@@ -413,13 +426,13 @@ void testuj_kolejne(unsigned int seed)
 
 		auto prawy = mapV[prawy_g2];
 		boost::add_edge(lewy, prawy, graf);
-		test(graf, mt, threshold);
+		test(graf, mt, threshold,false);
 	}
 	{
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
-		test(graf, mt, threshold);
+		test(graf, mt, threshold,true);
 	}
 }
 
