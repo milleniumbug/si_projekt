@@ -439,12 +439,13 @@ void testuj_kolejne(unsigned int seed)
 	}
 	{
 		boost::random::mt19937 mt(seed);
-		GrafZFeromonami graf, graf2;
-		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-		wygeneruj_graf_z_klika(graf2, 100, 150, 30, mt);
-		
-		auto prawy_g2 = boost::random_vertex(graf2, mt);
-		auto lewy = boost::random_vertex(graf, mt);
+		GrafZFeromonami graf;
+		static const int ile_grafow = 5;
+		std::array<GrafZFeromonami, ile_grafow> grafy_pomocnicze;
+		for(auto& graf_pomocniczy : grafy_pomocnicze)
+		{
+			wygeneruj_graf_z_klika(graf_pomocniczy, 100, 150, 30, mt);
+		}
 
 		// source: http://stackoverflow.com/a/24332273/1012936
 		typedef GrafZFeromonami graph_t;
@@ -454,13 +455,27 @@ void testuj_kolejne(unsigned int seed)
 		typedef boost::iterator_property_map<typename std::vector<vertex_t>::iterator,
 			index_map_t, vertex_t, vertex_t&> IsoMap;
 
-		std::vector<vertex_t> isoValues(boost::num_vertices(graf2));
-		IsoMap mapV(isoValues.begin());
+		std::array<std::vector<vertex_t>, ile_grafow> isoValues;
+		std::vector<IsoMap> mapV;
+		for(int i = 0; i < ile_grafow; ++i)
+		{
+			isoValues[i].resize(boost::num_vertices(grafy_pomocnicze[i]));
+			mapV.push_back(IsoMap(isoValues[i].begin()));
+			boost::copy_graph(grafy_pomocnicze[i], graf, boost::orig_to_copy(mapV[i]));
+		}
 
-		boost::copy_graph(graf2, graf, boost::orig_to_copy(mapV));
-
-		auto prawy = mapV[prawy_g2];
-		boost::add_edge(lewy, prawy, graf);
+		// połączeń między grafami jest n*(n-1)/2
+		static const int wsp1 = (ile_grafow % 2 == 0) ? ile_grafow / 2 : ile_grafow;
+		static const int wsp2 = ((ile_grafow - 1) % 2 == 0) ? (ile_grafow - 1) / 2 : (ile_grafow - 1);
+		for(int i = 0; i < wsp1; ++i)
+		{
+			for(int j = 0; j < wsp2; ++j)
+			{
+				auto lewy = boost::random_vertex(grafy_pomocnicze[i], mt);
+				auto prawy = boost::random_vertex(grafy_pomocnicze[j], mt);
+				boost::add_edge(mapV[i][lewy], mapV[j][prawy], graf);
+			}
+		}
 		test(graf, mt, threshold,false);
 	}
 	{

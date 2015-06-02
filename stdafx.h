@@ -12,6 +12,7 @@
 #include <atomic>
 #include <deque>
 #include <future>
+#include <array>
 #include <algorithm>
 #include <cassert>
 #include <iterator>
