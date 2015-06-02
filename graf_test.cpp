@@ -63,27 +63,27 @@ void usun_klike(std::vector<GrafZFeromonami::vertex_descriptor> vertexlist, Graf
 std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold)
 {
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> klika;
+	std::deque<GrafZFeromonami::vertex_descriptor> do_odwiedzenia;
 	klika.insert(v);
-	struct my_visitor : boost::default_bfs_visitor {
-		std::unordered_set<GrafZFeromonami::vertex_descriptor>& klika;
-		double threshold;
+	do_odwiedzenia.push_back(v);
 
-		void examine_edge(const GrafZFeromonami::edge_descriptor &e, const GrafZFeromonami &g) const {
-			double ilosc = g[e].feromony.load();
-			auto s = boost::source(e, g);
-			auto t = boost::target(e, g);
-			if(klika.find(s) != klika.end() && ilosc >= threshold)
-				klika.insert(t);
-		}
+	while(!do_odwiedzenia.empty())
+	{
+		auto v = do_odwiedzenia.front();
+		do_odwiedzenia.pop_front();
 
-		my_visitor(std::unordered_set<GrafZFeromonami::vertex_descriptor>& klika, double threshold) :
-			klika(klika),
-			threshold(threshold)
+		auto krawedzie = boost::out_edges(v, graf);
+		std::for_each(krawedzie.first, krawedzie.second, [&](GrafZFeromonami::edge_descriptor e)
 		{
-			
-		}
-	};
-	boost::breadth_first_search(graf, v, boost::visitor(my_visitor(klika, threshold)));
+			double ilosc = graf[e].feromony.load();
+			auto t = boost::target(e, graf);
+			if(klika.find(t) == klika.end() && ilosc >= threshold)
+			{
+				do_odwiedzenia.push_back(t);
+				klika.insert(t);
+			}
+		});
+	}
 	std::vector<GrafZFeromonami::vertex_descriptor> k(klika.begin(), klika.end());
 	std::sort(k.begin(), k.end());
 	return k;
