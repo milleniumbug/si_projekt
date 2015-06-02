@@ -362,27 +362,32 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 
 void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold,bool continous)
 {
-	assert(threshold >= 0 && threshold <= 1);
-	mrowki(graf, mt, 50, 4);
-
-	auto edges = boost::edges(graf);
-	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
-	std::sort(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor lhs, GrafZFeromonami::edge_descriptor rhs)
+	do
 	{
-		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
-	});
-	auto vertices = boost::vertices(graf);
-	auto koniec_krawedzi_niezerowych = std::stable_partition(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor edge)
-	{
-		return graf[edge].feromony.load() > 0.0;
-	});
-	serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych);
-	std::cout << "\n\n";
+		assert(threshold >= 0 && threshold <= 1);
+		mrowki(graf, mt, 50, 4);
 
-	auto kl = znajdz_klike_w_punkcie(graf, boost::target(sorted_edges.front(), graf), threshold*graf[sorted_edges.front()].feromony.load());
+		auto edges = boost::edges(graf);
+		std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
+		std::sort(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor lhs, GrafZFeromonami::edge_descriptor rhs)
+		{
+			return graf[lhs].feromony.load() > graf[rhs].feromony.load();
+		});
+		auto vertices = boost::vertices(graf);
+		auto koniec_krawedzi_niezerowych = std::stable_partition(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor edge)
+		{
+			return graf[edge].feromony.load() > 0.0;
+		});
+		serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych);
+		std::cout << "\n\n";
 
-	std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
-	std::cout << "\n\n";
+		auto kl = znajdz_klike_w_punkcie(graf, boost::target(sorted_edges.front(), graf), threshold*graf[sorted_edges.front()].feromony.load());
+
+		std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
+		std::cout << "\n\n";
+		if (continous) usun_klike(kl, graf);
+	} while (continous);
+	
 
 	kliki_klasycznie(graf);
 	std::cout << "\n\n";
