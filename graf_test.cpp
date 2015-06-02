@@ -52,6 +52,12 @@ typedef boost::adjacency_list<boost::vecS,
 
 std::map<GrafZFeromonami::vertex_descriptor, std::string> namemap;
 
+template<typename Zbior, typename Element>
+bool jest_w_zbiorze(const Zbior& zb, const Element& el)
+{
+	return zb.find(el) != zb.end();
+}
+
 void usun_klike(std::vector<GrafZFeromonami::vertex_descriptor> vertexlist, GrafZFeromonami& graf)
 {
 	for(GrafZFeromonami::vertex_descriptor vertex : vertexlist)
@@ -361,11 +367,11 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 	}
 }
 
-void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold,bool continous)
+void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ratio, bool continous = false)
 {
 	do
 	{
-		assert(threshold >= 0 && threshold <= 1);
+		assert(threshold_ratio >= 0 && threshold_ratio <= 1);
 		mrowki(graf, mt, 50, 4);
 
 		auto edges = boost::edges(graf);
@@ -382,11 +388,34 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold,bo
 		serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych);
 		std::cout << "\n\n";
 
-		auto kl = znajdz_klike_w_punkcie(graf, boost::target(sorted_edges.front(), graf), threshold*graf[sorted_edges.front()].feromony.load());
+		std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
+		const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
+		for(auto edge : sorted_edges)
+		{
+			auto s = boost::source(edge, graf);
+			auto t = boost::target(edge, graf);
 
-		std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
+			auto znajdz_i_wypisz_klike = [&](GrafZFeromonami::vertex_descriptor v)
+			{
+				auto kl = znajdz_klike_w_punkcie(graf, v, threshold);
+				elementy_klik_oznaczone.insert(kl.begin(), kl.end());
+
+				std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
+				std::cout << "\n";
+				if(continous)
+					usun_klike(kl, graf);
+			};
+
+			if(graf[edge].feromony.load() < threshold)
+				break;
+
+			if(!jest_w_zbiorze(elementy_klik_oznaczone, s))
+				znajdz_i_wypisz_klike(s);
+
+			if(!jest_w_zbiorze(elementy_klik_oznaczone, t))
+				znajdz_i_wypisz_klike(s);
+		}
 		std::cout << "\n\n";
-		if (continous) usun_klike(kl, graf);
 	} while (continous);
 	
 
