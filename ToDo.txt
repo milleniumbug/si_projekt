@@ -1,5 +1,4 @@
 - saturacja feromonów
-- przyœpieszenie BFSa
 - znajdowanie wszystkich, nie jednej kliki
 - sprawozdanie
 - wizualizacja z kolorkami i ca³ym grafem
