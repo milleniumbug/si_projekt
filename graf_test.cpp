@@ -54,8 +54,9 @@ std::map<GrafZFeromonami::vertex_descriptor, std::string> namemap;
 
 void usun_klike(std::vector<GrafZFeromonami::vertex_descriptor> vertexlist, GrafZFeromonami& graf)
 {
-	for (GrafZFeromonami::vertex_descriptor vertex : vertexlist)
+	for(GrafZFeromonami::vertex_descriptor vertex : vertexlist)
 	{
+		clear_vertex(vertex, graf);
 		remove_vertex(vertex, graf);
 	}
 }
