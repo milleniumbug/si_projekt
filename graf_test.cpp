@@ -399,11 +399,19 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 			{
 				auto kl = znajdz_klike_w_punkcie(graf, v, threshold);
 				elementy_klik_oznaczone.insert(kl.begin(), kl.end());
-
-				std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
+				if (!namemap.empty())
+				{
+					auto kt = kl.cbegin();
+					while (kt != kl.end())
+					{
+						std::cout << namemap[*kt] << " ";
+						kt++;
+					}
+				} else
+					std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
 				std::cout << "\n";
-				if(continous)
-					usun_klike(kl, graf);
+				//if(continous)
+				//	usun_klike(kl, graf);
 			};
 
 			if(graf[edge].feromony.load() < threshold)
@@ -416,6 +424,7 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 				znajdz_i_wypisz_klike(s);
 		}
 		std::cout << "\n\n";
+		if (continous) std::cout << "Continuing...\n";
 	} while (continous);
 	
 
