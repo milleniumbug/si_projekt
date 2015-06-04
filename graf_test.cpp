@@ -3,6 +3,7 @@
 #include "graf.h"
 #include "mrowki.h"
 #include "utils.h"
+#include "graf_utils.h"
 #include "kliki_klasycznie.h"
 
 void usun_klike(std::vector<GrafZFeromonami::vertex_descriptor> vertexlist, GrafZFeromonami& graf)
@@ -103,12 +104,68 @@ NameMap zaladujgraf(GrafZFeromonami& graf, std::string filename, std::string map
 	return namemap;
 }
 
+template<typename RandomNumberGenerator, typename CliqueVisitor>
+void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerator& mt, CliqueVisitor visit, const double threshold_ratio)
+{
+	assert(threshold_ratio >= 0 && threshold_ratio <= 1);
+	mrowki(graf, mt, 50, 4);
+
+	auto edges = boost::edges(graf);
+	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
+	std::sort(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor lhs, GrafZFeromonami::edge_descriptor rhs)
+	{
+		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
+	});
+
+	const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
+
+	std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
+	for(auto edge : sorted_edges)
+	{
+		auto s = boost::source(edge, graf);
+		auto t = boost::target(edge, graf);
+
+		auto znajdz_i_wypisz_klike = [&visit, &threshold, &elementy_klik_oznaczone](const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v)
+		{
+			auto kl = znajdz_klike_w_punkcie(graf, v, threshold);
+			elementy_klik_oznaczone.insert(kl.begin(), kl.end());
+			visit.clique(kl, graf);
+		};
+
+		if(graf[edge].feromony.load() < threshold)
+			break;
+
+		if(!jest_w_zbiorze(elementy_klik_oznaczone, s))
+			znajdz_i_wypisz_klike(graf, s);
+
+		if(!jest_w_zbiorze(elementy_klik_oznaczone, t))
+			znajdz_i_wypisz_klike(graf, s);
+	}
+}
+
 void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ratio, bool continous = false, std::ostream& output = std::cout, NameMap namemap = NameMap())
 {
 	do
 	{
-		assert(threshold_ratio >= 0 && threshold_ratio <= 1);
-		mrowki(graf, mt, 50, 4);
+
+		/*auto wypisz_graf = [&](const std::vector<GrafZFeromonami::vertex_descriptor>& kl)
+		{
+			output << "// ";
+			if(!namemap.empty())
+			{
+				auto kt = kl.cbegin();
+				while(kt != kl.end())
+				{
+					output << namemap[*kt] << " ";
+					kt++;
+				}
+			}
+			else
+				std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(output, " "));
+			output << "\n";
+		};*/
+		clique_printer_as_comment<std::ostream> vis(output, 10);
+		jackson_milleniumbug_all_cliques(graf, mt, vis, threshold_ratio);
 
 		auto edges = boost::edges(graf);
 		std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
@@ -127,43 +184,7 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 		serializuj_do_dot(output, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych, max_feromonu, threshold, namemap);
 		// // wszystkie krawędzie
 		// serializuj_do_dot(output, graf, vertices.first, vertices.second, sorted_edges.begin(), sorted_edges.end(), max_feromonu, threshold, namemap);
-		output << "\n\n";
 
-		std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
-		for(auto edge : sorted_edges)
-		{
-			auto s = boost::source(edge, graf);
-			auto t = boost::target(edge, graf);
-
-			auto znajdz_i_wypisz_klike = [&](GrafZFeromonami::vertex_descriptor v)
-			{
-				auto kl = znajdz_klike_w_punkcie(graf, v, threshold);
-				elementy_klik_oznaczone.insert(kl.begin(), kl.end());
-				output << "// ";
-				if (!namemap.empty())
-				{
-					auto kt = kl.cbegin();
-					while (kt != kl.end())
-					{
-						output << namemap[*kt] << " ";
-						kt++;
-					}
-				} else
-					std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(output, " "));
-				output << "\n";
-				//if(continous)
-				//	usun_klike(kl, graf);
-			};
-
-			if(graf[edge].feromony.load() < threshold)
-				break;
-
-			if(!jest_w_zbiorze(elementy_klik_oznaczone, s))
-				znajdz_i_wypisz_klike(s);
-
-			if(!jest_w_zbiorze(elementy_klik_oznaczone, t))
-				znajdz_i_wypisz_klike(s);
-		}
 		output << "\n\n";
 		if (continous) std::cout << "Continuing...\n";
 	} while (continous);
