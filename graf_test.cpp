@@ -147,25 +147,15 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 {
 	do
 	{
+		clique_printer<std::ostream> print(output, 10);
+		clique_printer_as_comment<decltype(print)> unprint(print);
 
-		/*auto wypisz_graf = [&](const std::vector<GrafZFeromonami::vertex_descriptor>& kl)
-		{
-			output << "// ";
-			if(!namemap.empty())
-			{
-				auto kt = kl.cbegin();
-				while(kt != kl.end())
-				{
-					output << namemap[*kt] << " ";
-					kt++;
-				}
-			}
-			else
-				std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(output, " "));
-			output << "\n";
-		};*/
-		clique_printer_as_comment<std::ostream> vis(output, 10);
-		jackson_milleniumbug_all_cliques(graf, mt, vis, threshold_ratio);
+		clique_printer_with_name_map<std::ostream, NameMap> name_print(output, 10, namemap);
+		clique_printer_as_comment<decltype(name_print)> name_unprint(name_print);
+		if(namemap.empty())
+			jackson_milleniumbug_all_cliques(graf, mt, unprint, threshold_ratio);
+		else
+			jackson_milleniumbug_all_cliques(graf, mt, name_unprint, threshold_ratio);
 
 		auto edges = boost::edges(graf);
 		std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);

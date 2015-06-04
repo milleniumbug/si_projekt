@@ -5,7 +5,7 @@ template <typename OutputStream>
 struct clique_printer
 {
 	clique_printer(OutputStream& stream, int minsize_)
-		: os(stream), minsize(minsize_)
+		: output(stream), minsize(minsize_)
 	{ }
 
 	template <typename Clique, typename Graph>
@@ -15,21 +15,21 @@ struct clique_printer
 		// Iterate over the clique and print each vertex within it.
 		typename Clique::const_iterator i, end = c.end();
 		for(i = c.begin(); i != end; ++i) {
-			os << *i << " ";
+			output << *i << " ";
 		}
-		os << std::endl;
+		output << std::endl;
 	}
-	OutputStream& os;
+	OutputStream& output;
 	int minsize;
 };
 
-template <typename OutputStream>
+template<typename UnderlyingCliquePrinter>
 struct clique_printer_as_comment
 {
-	clique_printer<OutputStream> printer;
+	UnderlyingCliquePrinter printer;
 
-	clique_printer_as_comment(OutputStream& stream, int minsize_)
-		: printer(stream, minsize_)
+	clique_printer_as_comment(UnderlyingCliquePrinter unprinter)
+		: printer(unprinter)
 	{ }
 
 	template <typename Clique, typename Graph>
@@ -37,15 +37,40 @@ struct clique_printer_as_comment
 	{
 		if(c.size() < printer.minsize) return;
 		// Iterate over the clique and print each vertex within it.
-		printer.os << "// ";
+		printer.output << "// ";
 		printer.clique(c, g);
 	}
 };
 
+template<typename OutputStream, typename NameMap>
+struct clique_printer_with_name_map
+{
+	clique_printer_with_name_map(OutputStream& stream, int minsize_, NameMap namemap_)
+		: output(stream), minsize(minsize_), namemap(namemap_)
+	{ }
+
+	template <typename Clique, typename Graph>
+	void clique(const Clique& kl, const Graph& g)
+	{
+		if(kl.size() < minsize) return;
+		// Iterate over the clique and print each vertex within it.
+		auto kt = kl.cbegin();
+		while(kt != kl.cend())
+		{
+			output << namemap[*kt] << " ";
+			kt++;
+		}
+		output << std::endl;
+	}
+	NameMap namemap;
+	OutputStream& output;
+	int minsize;
+};
+
 struct serializator_klik
 {
-	serializator_klik(std::ostream& os, int minimalny_rozmiar) :
-		os(os),
+	serializator_klik(std::ostream& output, int minimalny_rozmiar) :
+		output(output),
 		minimalny_rozmiar(minimalny_rozmiar)
 	{ }
 
@@ -62,9 +87,9 @@ struct serializator_klik
 		{
 			return clique.find(boost::target(e, g)) != clique.end() && clique.find(boost::source(e, g)) != clique.end();
 		});
-		serializuj_do_dot(os, g, c.begin(), c.end(), edges.begin(), edges.end());
+		serializuj_do_dot(output, g, c.begin(), c.end(), edges.begin(), edges.end());
 	}
-	std::ostream& os;
+	std::ostream& output;
 	int minimalny_rozmiar;
 };
 

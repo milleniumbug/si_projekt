@@ -6,8 +6,9 @@
 
 inline void kliki_klasycznie(const GrafZFeromonami& graf, std::ostream& output)
 {
-	clique_printer_as_comment<std::ostream> vis(output, 10);
-	boost::bron_kerbosch_all_cliques(graf, vis);
+	clique_printer<std::ostream> print(output, 10);
+	clique_printer_as_comment<decltype(print)> unprint(print);
+	boost::bron_kerbosch_all_cliques(graf, unprint);
 }
 
 #endif
