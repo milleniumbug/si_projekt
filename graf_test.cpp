@@ -94,6 +94,20 @@ std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const Gra
 	std::sort(k.begin(), k.end());
 	return k;
 }
+
+// zgodnie z sugestią
+std::vector<GrafZFeromonami::vertex_descriptor> klika_plus_sasiedzi(const GrafZFeromonami& graf, std::vector<GrafZFeromonami::vertex_descriptor> klika)
+{
+	std::unordered_set<GrafZFeromonami::vertex_descriptor> sasiedzi;
+	for(auto& el : klika)
+	{
+		auto sasiedztwo_wierzcholka = boost::out_edges(el, graf);
+		std::copy(sasiedztwo_wierzcholka.first, sasiedztwo_wierzcholka.second, std::inserter(sasiedzi, sasiedzi.begin()));
+	}
+	klika.insert(klika.end(), sasiedzi.begin(), sasiedzi.end());
+	std::sort(klika.begin(), klika.end());
+	return klika;
+}
 	
 template<typename Derived, typename RandomNumberGenerator>
 class MrowkaBase
@@ -398,7 +412,10 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 		});
 		const double max_feromonu = graf[sorted_edges.front()].feromony.load();
 		const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
+		// // bez wierzchołków, z krawędziami o niezerowej ilości feromonu
 		serializuj_do_dot(output, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych, max_feromonu, threshold, namemap);
+		// // wszystkie krawędzie
+		// serializuj_do_dot(output, graf, vertices.first, vertices.second, sorted_edges.begin(), sorted_edges.end(), max_feromonu, threshold, namemap);
 		output << "\n\n";
 
 		std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
