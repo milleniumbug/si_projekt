@@ -86,14 +86,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="container.h" />
+    <ClInclude Include="graf.h" />
+    <ClInclude Include="graf_test.h" />
+    <ClInclude Include="kliki_klasycznie.h" />
     <ClInclude Include="mapa_kolorow.h" />
+    <ClInclude Include="mrowki.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="graf.cpp" />
     <ClCompile Include="graf_test.cpp" />
     <ClCompile Include="loader.cpp" />
     <ClCompile Include="mapa_kolorow.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="Wikipedia_finder.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

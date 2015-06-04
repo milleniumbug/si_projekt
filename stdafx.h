@@ -20,11 +20,12 @@
 #include <map>
 #include <cmath>
 #include <limits>
+#include <random>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/random.hpp>
 #include <boost/graph/copy.hpp>
 #include <boost/graph/graphviz.hpp>
-#include <random>
+#include <boost/graph/bron_kerbosch_all_cliques.hpp>
 #include <boost/random.hpp>
 
 
