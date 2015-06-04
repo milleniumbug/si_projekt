@@ -204,13 +204,6 @@ void testuj_kolejne(unsigned int seed)
 	{
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
-		NameMap namemap = zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
-		std::ofstream output("out3.gv");
-		test(graf, mt, threshold, false, output, namemap);
-	}
-	{
-		boost::random::mt19937 mt(seed);
-		GrafZFeromonami graf;
 		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
 		std::ofstream output("out1.gv");
 		test(graf, mt, threshold, false, output);
@@ -256,6 +249,13 @@ void testuj_kolejne(unsigned int seed)
 		}
 		std::ofstream output("out2.gv");
 		test(graf, mt, threshold, false, output);
+	}
+	{
+		boost::random::mt19937 mt(seed);
+		GrafZFeromonami graf;
+		NameMap namemap = zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
+		std::ofstream output("out3.gv");
+		test(graf, mt, threshold, false, output, namemap);
 	}
 	{
 		boost::random::mt19937 mt(seed);
