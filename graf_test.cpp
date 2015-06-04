@@ -145,13 +145,13 @@ void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerat
 
 void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ratio, bool continous = false, std::ostream& output = std::cout, NameMap namemap = NameMap())
 {
+	clique_printer<std::ostream> print(output, 10);
+	clique_printer_as_comment<decltype(print)> unprint(print);
+
+	clique_printer_with_name_map<std::ostream, NameMap> name_print(output, 10, namemap);
+	clique_printer_as_comment<decltype(name_print)> name_unprint(name_print);
 	do
 	{
-		clique_printer<std::ostream> print(output, 10);
-		clique_printer_as_comment<decltype(print)> unprint(print);
-
-		clique_printer_with_name_map<std::ostream, NameMap> name_print(output, 10, namemap);
-		clique_printer_as_comment<decltype(name_print)> name_unprint(name_print);
 		if(namemap.empty())
 			jackson_milleniumbug_all_cliques(graf, mt, unprint, threshold_ratio);
 		else
