@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "mapa_kolorow.h"
 
 struct WlasnosciKrawedzi
 {
@@ -272,7 +273,7 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_m
 void kliki_klasycznie(const GrafZFeromonami& graf);
 
 template<typename VertexIterator, typename EdgeIterator>
-void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIterator vb, VertexIterator ve, EdgeIterator eb, EdgeIterator ee)
+void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIterator vb, VertexIterator ve, EdgeIterator eb, EdgeIterator ee, const double max = -1, const double threshold = -1)
 {
 	os << "strict graph {\n";
 	std::for_each(vb, ve, [&](GrafZFeromonami::vertex_descriptor vertex)
@@ -280,13 +281,15 @@ void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIter
 		if (!namemap.empty())
 		{
 			
-			os << vertex << " [ name = " << namemap[vertex] << "]\n";
+			os << vertex << " [ label = " << boost::escape_dot_string(namemap[vertex]) << "]\n";
 		}
 		else os << vertex << "\n";
 	});
 	std::for_each(eb, ee, [&](GrafZFeromonami::edge_descriptor edge)
 	{
-		os << boost::source(edge, graf) << " -- " << boost::target(edge, graf) << " [ fer = " << std::fixed << graf[edge].feromony.load() << "; ]" << "\n";
+		const double fer = graf[edge].feromony.load();
+		std::string kolor_property = (max > 0) ? "color = \"" + as_hex(daj_kolor(0, max, threshold, fer)) + "\";" : "";
+		os << boost::source(edge, graf) << " -- " << boost::target(edge, graf) << " [ label = " << std::fixed << boost::escape_dot_string(fer) << ";  " << kolor_property << " ]" << "\n";
 	});
 	os << "}\n";
 }
@@ -385,11 +388,12 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 		{
 			return graf[edge].feromony.load() > 0.0;
 		});
-		serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych);
+		const double max_feromonu = graf[sorted_edges.front()].feromony.load();
+		const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
+		serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych, max_feromonu, threshold);
 		std::cout << "\n\n";
 
 		std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
-		const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
 		for(auto edge : sorted_edges)
 		{
 			auto s = boost::source(edge, graf);

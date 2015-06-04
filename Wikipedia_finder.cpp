@@ -12,4 +12,3 @@ int main()
 	extern void testuj_kolejne();
 	testuj_kolejne();
 }
-

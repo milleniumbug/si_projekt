@@ -26,6 +26,9 @@
     <ClInclude Include="container.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mapa_kolorow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -38,6 +41,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="graf_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapa_kolorow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
