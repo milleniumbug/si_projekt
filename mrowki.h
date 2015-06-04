@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <algorithm>
-#include <random>
 #include <boost/random.hpp>
 #include "graf.h"
 #include "utils.h"
@@ -168,9 +167,9 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_m
 		std::vector<std::future<void>> wyniki(ilosc_watkow);
 		for(int i = 0; i < ilosc_watkow; ++i)
 		{
-			wyniki[i] = std::async(std::launch::async, [](std::vector<Mrowka>& mrowisko, const int ilosc_ruchow)
+			wyniki[i] = std::async(std::launch::async, [](std::vector<Mrowka>& mrowisko, const int ile_ruchow)
 			{
-				for(int i = 0; i < ilosc_ruchow; ++i)
+				for(int j = 0; j < ile_ruchow; ++j)
 					for(auto& mrowka : mrowisko)
 						mrowka.nastepny_ruch();
 			}, std::ref(mrowiska[i]), ilosc_ruchow);

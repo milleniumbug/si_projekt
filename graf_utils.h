@@ -30,7 +30,7 @@ struct clique_printer_as_comment
 {
 	UnderlyingCliquePrinter printer;
 
-	clique_printer_as_comment(UnderlyingCliquePrinter unprinter)
+	explicit clique_printer_as_comment(UnderlyingCliquePrinter unprinter)
 		: printer(unprinter)
 	{ }
 
@@ -48,7 +48,7 @@ template<typename OutputStream, typename NameMap>
 struct clique_printer_with_name_map
 {
 	clique_printer_with_name_map(OutputStream& stream, int minsize_, NameMap namemap_)
-		: output(stream), minsize(minsize_), namemap(namemap_)
+		: namemap(namemap_), output(stream), minsize(minsize_)
 	{ }
 
 	template <typename Clique, typename Graph>
@@ -60,7 +60,7 @@ struct clique_printer_with_name_map
 		while(kt != kl.cend())
 		{
 			output << namemap[*kt] << " ";
-			kt++;
+			++kt;
 		}
 		output << std::endl;
 	}

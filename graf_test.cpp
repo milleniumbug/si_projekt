@@ -24,10 +24,10 @@ std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const Gra
 
 	while(!do_odwiedzenia.empty())
 	{
-		auto v = do_odwiedzenia.front();
+		auto nast = do_odwiedzenia.front();
 		do_odwiedzenia.pop_front();
 
-		auto krawedzie = boost::out_edges(v, graf);
+		auto krawedzie = boost::out_edges(nast, graf);
 		std::for_each(krawedzie.first, krawedzie.second, [&](GrafZFeromonami::edge_descriptor e)
 		{
 			double ilosc = graf[e].feromony.load();
@@ -111,11 +111,11 @@ void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerat
 		auto s = boost::source(edge, graf);
 		auto t = boost::target(edge, graf);
 
-		auto znajdz_i_wypisz_klike = [&visit, &threshold, &elementy_klik_oznaczone](const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v)
+		auto znajdz_i_wypisz_klike = [&visit, &threshold, &elementy_klik_oznaczone](const GrafZFeromonami& g, GrafZFeromonami::vertex_descriptor v)
 		{
-			auto kl = znajdz_klike_w_punkcie(graf, v, threshold);
+			auto kl = znajdz_klike_w_punkcie(g, v, threshold);
 			elementy_klik_oznaczone.insert(kl.begin(), kl.end());
-			visit.clique(kl, graf);
+			visit.clique(kl, g);
 		};
 
 		if(graf[edge].feromony.load() < threshold)
@@ -171,8 +171,6 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 
 void testuj_kolejne(unsigned int seed)
 {
-	// najmniejsza liczba dodatnia
-	const double zeroplus = std::nextafter(0.0, std::numeric_limits<double>::infinity());
 	const double threshold = 0.0001;
 	std::cout << "SEED: " << seed << "\n";
 	std::cout << "THRESHOLD: " << threshold << "\n";

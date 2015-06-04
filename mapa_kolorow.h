@@ -1,12 +1,6 @@
 #ifndef MAPA_KOLOROW_H
 #define MAPA_KOLOROW_H
 
-#include <sstream>
-#include <iomanip>
-#include <vector>
-#include <algorithm>
-#include <utility>
-
 struct Color
 {
 	unsigned char r, g, b;
