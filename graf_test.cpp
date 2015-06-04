@@ -277,7 +277,7 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_m
 	ustaw_oczekiwane_wartosci_feromonu();
 }
 
-void kliki_klasycznie(const GrafZFeromonami& graf);
+void kliki_klasycznie(const GrafZFeromonami& graf, std::ostream& output = std::cout);
 
 template<typename VertexIterator, typename EdgeIterator>
 void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIterator vb, VertexIterator ve, EdgeIterator eb, EdgeIterator ee, const double max = -1, const double threshold = -1)
@@ -377,7 +377,7 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 	}
 }
 
-void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ratio, bool continous = false)
+void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ratio, bool continous = false, std::ostream& output = std::cout)
 {
 	do
 	{
@@ -397,8 +397,8 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 		});
 		const double max_feromonu = graf[sorted_edges.front()].feromony.load();
 		const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
-		serializuj_do_dot(std::cout, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych, max_feromonu, threshold);
-		std::cout << "\n\n";
+		serializuj_do_dot(output, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych, max_feromonu, threshold);
+		output << "\n\n";
 
 		std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
 		for(auto edge : sorted_edges)
@@ -410,17 +410,18 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 			{
 				auto kl = znajdz_klike_w_punkcie(graf, v, threshold);
 				elementy_klik_oznaczone.insert(kl.begin(), kl.end());
+				output << "// ";
 				if (!namemap.empty())
 				{
 					auto kt = kl.cbegin();
 					while (kt != kl.end())
 					{
-						std::cout << namemap[*kt] << " ";
+						output << namemap[*kt] << " ";
 						kt++;
 					}
 				} else
-					std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(std::cout, " "));
-				std::cout << "\n";
+					std::copy(kl.begin(), kl.end(), std::ostream_iterator<GrafZFeromonami::vertex_descriptor>(output, " "));
+				output << "\n";
 				//if(continous)
 				//	usun_klike(kl, graf);
 			};
@@ -434,13 +435,12 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 			if(!jest_w_zbiorze(elementy_klik_oznaczone, t))
 				znajdz_i_wypisz_klike(s);
 		}
-		std::cout << "\n\n";
+		output << "\n\n";
 		if (continous) std::cout << "Continuing...\n";
 	} while (continous);
 	
-
-	kliki_klasycznie(graf);
-	std::cout << "\n\n";
+	kliki_klasycznie(graf, output);
+	output << "\n\n";
 }
 
 void testuj_kolejne(unsigned int seed)
@@ -455,7 +455,8 @@ void testuj_kolejne(unsigned int seed)
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-		test(graf, mt, threshold,false);
+		std::ofstream output("out1.gv");
+		test(graf, mt, threshold, false, output);
 	}
 	{
 		boost::random::mt19937 mt(seed);
@@ -496,13 +497,15 @@ void testuj_kolejne(unsigned int seed)
 				boost::add_edge(mapV[i][lewy], mapV[j][prawy], graf);
 			}
 		}
-		test(graf, mt, threshold,false);
+		std::ofstream output("out2.gv");
+		test(graf, mt, threshold, false, output);
 	}
 	{
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
 		zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
-		test(graf, mt, threshold,true);
+		std::ofstream output("out3.gv");
+		test(graf, mt, threshold, true, output);
 	}
 }
 
@@ -538,6 +541,25 @@ struct clique_printer
 	int minsize;
 };
 
+template <typename OutputStream>
+struct clique_printer_as_comment
+{
+	clique_printer<OutputStream> printer;
+
+	clique_printer_as_comment(OutputStream& stream, int minsize_)
+		: printer(stream, minsize_)
+	{ }
+
+	template <typename Clique, typename Graph>
+	void clique(const Clique& c, const Graph& g)
+	{
+		if(c.size() < printer.minsize) return;
+		// Iterate over the clique and print each vertex within it.
+		printer.os << "// ";
+		printer.clique(c, g);
+	}
+};
+
 struct serializator_klik
 {
 	serializator_klik(std::ostream& os, int minimalny_rozmiar) :
@@ -564,8 +586,8 @@ struct serializator_klik
 	int minimalny_rozmiar;
 };
 
-void kliki_klasycznie(const GrafZFeromonami& graf)
+void kliki_klasycznie(const GrafZFeromonami& graf, std::ostream& output)
 {
-	clique_printer<std::ostream> vis(std::cout, 10);
+	clique_printer_as_comment<std::ostream> vis(output, 10);
 	boost::bron_kerbosch_all_cliques(graf, vis);
 }
