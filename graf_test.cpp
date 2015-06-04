@@ -51,8 +51,6 @@ typedef boost::adjacency_list<boost::vecS,
 	boost::no_property,
 	WlasnosciKrawedzi> GrafZFeromonami;
 
-std::map<GrafZFeromonami::vertex_descriptor, std::string> namemap;
-
 template<typename Zbior, typename Element>
 bool jest_w_zbiorze(const Zbior& zb, const Element& el)
 {
@@ -228,6 +226,8 @@ public:
 	}
 };
 
+typedef std::map<GrafZFeromonami::vertex_descriptor, std::string> NameMap;
+
 template<typename RandomNumberGenerator>
 void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_mrowek, const int ilosc_watkow = std::thread::hardware_concurrency())
 {
@@ -280,14 +280,13 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_m
 void kliki_klasycznie(const GrafZFeromonami& graf, std::ostream& output = std::cout);
 
 template<typename VertexIterator, typename EdgeIterator>
-void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIterator vb, VertexIterator ve, EdgeIterator eb, EdgeIterator ee, const double max = -1, const double threshold = -1)
+void serializuj_do_dot(std::ostream& os, const GrafZFeromonami& graf, VertexIterator vb, VertexIterator ve, EdgeIterator eb, EdgeIterator ee, const double max = -1, const double threshold = -1, NameMap namemap = NameMap())
 {
 	os << "strict graph {\n";
 	std::for_each(vb, ve, [&](GrafZFeromonami::vertex_descriptor vertex)
 	{
 		if (!namemap.empty())
 		{
-			
 			os << vertex << " [ label = " << boost::escape_dot_string(namemap[vertex]) << "]\n";
 		}
 		else os << vertex << "\n";
@@ -333,7 +332,7 @@ void wygeneruj_graf_z_klika(MutableGraph& graf, int ilosc_wierzcholkow, int ilos
 	}
 }
 
-void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
+NameMap zaladujgraf(GrafZFeromonami& graf, std::string filename, std::string mapfile)
 {
 	std::ifstream fin;
 	std::vector<GrafZFeromonami::vertex_descriptor> vertex_list;
@@ -365,6 +364,7 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 	}
 	fin.close();
 	fin.open(mapfile.c_str());
+	NameMap namemap;
 	while (std::getline(fin, s1))
 	{
 		std::stringstream tmp(s1);
@@ -375,9 +375,10 @@ void zaladujgraf(GrafZFeromonami& graf,std::string filename,std::string mapfile)
 		int i = atoi(s3.c_str());
 		namemap.insert(std::pair<GrafZFeromonami::vertex_descriptor, std::string>(vertex_list[i], s2));
 	}
+	return namemap;
 }
 
-void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ratio, bool continous = false, std::ostream& output = std::cout)
+void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ratio, bool continous = false, std::ostream& output = std::cout, NameMap namemap = NameMap())
 {
 	do
 	{
@@ -397,7 +398,7 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 		});
 		const double max_feromonu = graf[sorted_edges.front()].feromony.load();
 		const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
-		serializuj_do_dot(output, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych, max_feromonu, threshold);
+		serializuj_do_dot(output, graf, vertices.first, vertices.first, sorted_edges.begin(), koniec_krawedzi_niezerowych, max_feromonu, threshold, namemap);
 		output << "\n\n";
 
 		std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
@@ -503,9 +504,9 @@ void testuj_kolejne(unsigned int seed)
 	{
 		boost::random::mt19937 mt(seed);
 		GrafZFeromonami graf;
-		zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
+		NameMap namemap = zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
 		std::ofstream output("out3.gv");
-		test(graf, mt, threshold, true, output);
+		test(graf, mt, threshold, true, output, namemap);
 	}
 }
 
