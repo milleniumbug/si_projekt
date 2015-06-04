@@ -461,7 +461,7 @@ void testuj_kolejne(unsigned int seed)
 		typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_t;
 		typedef boost::property_map<graph_t, boost::vertex_index_t>::type index_map_t;
 
-		typedef boost::iterator_property_map<typename std::vector<vertex_t>::iterator,
+		typedef boost::iterator_property_map<std::vector<vertex_t>::iterator,
 			index_map_t, vertex_t, vertex_t&> IsoMap;
 
 		std::array<std::vector<vertex_t>, ile_grafow> isoValues;
