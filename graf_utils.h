@@ -1,6 +1,8 @@
 #ifndef GRAF_UTILS_H
 #define GRAF_UTILS_H
 
+#include "graf.h"
+
 template <typename OutputStream>
 struct clique_printer
 {
@@ -92,5 +94,8 @@ struct serializator_klik
 	std::ostream& output;
 	int minimalny_rozmiar;
 };
+
+// zgodnie z sugesti¹
+std::vector<GrafZFeromonami::vertex_descriptor> klika_plus_sasiedzi(const GrafZFeromonami& graf, std::vector<GrafZFeromonami::vertex_descriptor> klika);
 
 #endif

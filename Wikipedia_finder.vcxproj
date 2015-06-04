@@ -98,6 +98,7 @@
   <ItemGroup>
     <ClCompile Include="graf.cpp" />
     <ClCompile Include="graf_test.cpp" />
+    <ClCompile Include="graf_utils.cpp" />
     <ClCompile Include="loader.cpp" />
     <ClCompile Include="mapa_kolorow.cpp" />
     <ClCompile Include="stdafx.cpp" />

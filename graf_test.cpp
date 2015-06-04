@@ -44,20 +44,6 @@ std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const Gra
 	return k;
 }
 
-// zgodnie z sugestią
-/*std::vector<GrafZFeromonami::vertex_descriptor> klika_plus_sasiedzi(const GrafZFeromonami& graf, std::vector<GrafZFeromonami::vertex_descriptor> klika)
-{
-	std::unordered_set<GrafZFeromonami::vertex_descriptor> sasiedzi;
-	for(auto& el : klika)
-	{
-		auto sasiedztwo_wierzcholka = boost::out_edges(el, graf);
-		std::copy(sasiedztwo_wierzcholka.first, sasiedztwo_wierzcholka.second, std::inserter(sasiedzi, sasiedzi.begin()));
-	}
-	klika.insert(klika.end(), sasiedzi.begin(), sasiedzi.end());
-	std::sort(klika.begin(), klika.end());
-	return klika;
-}*/
-
 NameMap zaladujgraf(GrafZFeromonami& graf, std::string filename, std::string mapfile)
 {
 	std::ifstream fin;
