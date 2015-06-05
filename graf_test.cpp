@@ -169,7 +169,7 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 	output << "\n\n";
 }
 
-void test_wiele_klik(const unsigned int seed, const double threshold, const int ile_grafow, const char* outpath)
+void test_wiele_klik(const unsigned int seed, const double threshold, const int ile_grafow, std::string outpath)
 {
 	boost::random::mt19937 mt(seed);
 	GrafZFeromonami graf;
@@ -208,7 +208,7 @@ void test_wiele_klik(const unsigned int seed, const double threshold, const int 
 			boost::add_edge(mapV[i][lewy], mapV[j][prawy], graf);
 		}
 	}
-	std::ofstream output(outpath);
+	std::ofstream output(outpath.c_str());
 	test(graf, mt, threshold, false, output);
 }
 
