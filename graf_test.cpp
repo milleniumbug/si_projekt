@@ -169,14 +169,21 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 	output << "\n\n";
 }
 
-void test_wiele_klik(const unsigned int seed, const double threshold, const int ile_grafow, std::string outpath)
+void test_wiele_klik(
+	const unsigned int seed,
+	const double threshold,
+	const int ile_grafow,
+	const std::string outpath,
+	const int ilosc_wierzcholkow_na_graf = 100,
+	const int ilosc_krawedzi_na_graf_hint = 150,
+	const int ilosc_wierzcholkow_w_klice_na_graf = 30)
 {
 	boost::random::mt19937 mt(seed);
 	GrafZFeromonami graf;
 	std::vector<GrafZFeromonami> grafy_pomocnicze(ile_grafow);
 	for(auto& graf_pomocniczy : grafy_pomocnicze)
 	{
-		wygeneruj_graf_z_klika(graf_pomocniczy, 100, 150, 30, mt);
+		wygeneruj_graf_z_klika(graf_pomocniczy, ilosc_wierzcholkow_na_graf, ilosc_krawedzi_na_graf_hint, ilosc_wierzcholkow_w_klice_na_graf, mt);
 	}
 
 	// source: http://stackoverflow.com/a/24332273/1012936
