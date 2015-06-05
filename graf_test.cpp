@@ -169,75 +169,68 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 	output << "\n\n";
 }
 
+void test_wiele_klik(const unsigned int seed, const double threshold, const int ile_grafow, const char* outpath)
+{
+	boost::random::mt19937 mt(seed);
+	GrafZFeromonami graf;
+	std::vector<GrafZFeromonami> grafy_pomocnicze(ile_grafow);
+	for(auto& graf_pomocniczy : grafy_pomocnicze)
+	{
+		wygeneruj_graf_z_klika(graf_pomocniczy, 100, 150, 30, mt);
+	}
+
+	// source: http://stackoverflow.com/a/24332273/1012936
+	typedef GrafZFeromonami graph_t;
+	typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_t;
+	typedef boost::property_map<graph_t, boost::vertex_index_t>::type index_map_t;
+
+	typedef boost::iterator_property_map<std::vector<vertex_t>::iterator,
+		index_map_t, vertex_t, vertex_t&> IsoMap;
+
+	std::vector<std::vector<vertex_t>> isoValues(ile_grafow);
+	std::vector<IsoMap> mapV;
+	for(int i = 0; i < ile_grafow; ++i)
+	{
+		isoValues[i].resize(boost::num_vertices(grafy_pomocnicze[i]));
+		mapV.push_back(IsoMap(isoValues[i].begin()));
+		boost::copy_graph(grafy_pomocnicze[i], graf, boost::orig_to_copy(mapV[i]));
+	}
+
+	// połączeń między grafami jest n*(n-1)/2
+	const int wsp1 = (ile_grafow % 2 == 0) ? ile_grafow / 2 : ile_grafow;
+	const int wsp2 = ((ile_grafow - 1) % 2 == 0) ? (ile_grafow - 1) / 2 : (ile_grafow - 1);
+	for(int i = 0; i < wsp1; ++i)
+	{
+		for(int j = 0; j < wsp2; ++j)
+		{
+			auto lewy = boost::random_vertex(grafy_pomocnicze[i], mt);
+			auto prawy = boost::random_vertex(grafy_pomocnicze[j], mt);
+			boost::add_edge(mapV[i][lewy], mapV[j][prawy], graf);
+		}
+	}
+	std::ofstream output(outpath);
+	test(graf, mt, threshold, false, output);
+}
+
+void test_wikipedia(const unsigned int seed, const double threshold, const bool continuous, const char* outpath)
+{
+	boost::random::mt19937 mt(seed);
+	GrafZFeromonami graf;
+	NameMap namemap = zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
+	std::ofstream output(outpath);
+	test(graf, mt, threshold, continuous, output, namemap);
+}
+
 void testuj_kolejne(unsigned int seed)
 {
 	const double threshold = 0.0001;
 	std::cout << "SEED: " << seed << "\n";
 	std::cout << "THRESHOLD: " << threshold << "\n";
 	std::cout << "\n";
-	{
-		boost::random::mt19937 mt(seed);
-		GrafZFeromonami graf;
-		wygeneruj_graf_z_klika(graf, 100, 150, 30, mt);
-		std::ofstream output("out1.gv");
-		test(graf, mt, threshold, false, output);
-	}
-	{
-		boost::random::mt19937 mt(seed);
-		GrafZFeromonami graf;
-		static const int ile_grafow = 5;
-		std::array<GrafZFeromonami, ile_grafow> grafy_pomocnicze;
-		for(auto& graf_pomocniczy : grafy_pomocnicze)
-		{
-			wygeneruj_graf_z_klika(graf_pomocniczy, 100, 150, 30, mt);
-		}
-
-		// source: http://stackoverflow.com/a/24332273/1012936
-		typedef GrafZFeromonami graph_t;
-		typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_t;
-		typedef boost::property_map<graph_t, boost::vertex_index_t>::type index_map_t;
-
-		typedef boost::iterator_property_map<std::vector<vertex_t>::iterator,
-			index_map_t, vertex_t, vertex_t&> IsoMap;
-
-		std::array<std::vector<vertex_t>, ile_grafow> isoValues;
-		std::vector<IsoMap> mapV;
-		for(int i = 0; i < ile_grafow; ++i)
-		{
-			isoValues[i].resize(boost::num_vertices(grafy_pomocnicze[i]));
-			mapV.push_back(IsoMap(isoValues[i].begin()));
-			boost::copy_graph(grafy_pomocnicze[i], graf, boost::orig_to_copy(mapV[i]));
-		}
-
-		// połączeń między grafami jest n*(n-1)/2
-		static const int wsp1 = (ile_grafow % 2 == 0) ? ile_grafow / 2 : ile_grafow;
-		static const int wsp2 = ((ile_grafow - 1) % 2 == 0) ? (ile_grafow - 1) / 2 : (ile_grafow - 1);
-		for(int i = 0; i < wsp1; ++i)
-		{
-			for(int j = 0; j < wsp2; ++j)
-			{
-				auto lewy = boost::random_vertex(grafy_pomocnicze[i], mt);
-				auto prawy = boost::random_vertex(grafy_pomocnicze[j], mt);
-				boost::add_edge(mapV[i][lewy], mapV[j][prawy], graf);
-			}
-		}
-		std::ofstream output("out2.gv");
-		test(graf, mt, threshold, false, output);
-	}
-	{
-		boost::random::mt19937 mt(seed);
-		GrafZFeromonami graf;
-		NameMap namemap = zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
-		std::ofstream output("out3.gv");
-		test(graf, mt, threshold, false, output, namemap);
-	}
-	{
-		boost::random::mt19937 mt(seed);
-		GrafZFeromonami graf;
-		NameMap namemap = zaladujgraf(graf, "temp-po_linkach-lista-simple-20120104_feed.txt", "temp-po_linkach-feature_dict-simple-20120104");
-		std::ofstream output("out4.gv");
-		test(graf, mt, threshold, true, output, namemap);
-	}
+	test_wiele_klik(seed, threshold, 1, "out1.gv");
+	test_wiele_klik(seed, threshold, 5, "out2.gv");
+	test_wikipedia(seed, threshold, false, "out3.gv");
+	test_wikipedia(seed, threshold, true, "out3.gv");
 }
 
 void testuj_kolejne()
