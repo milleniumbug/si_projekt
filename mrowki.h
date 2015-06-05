@@ -54,11 +54,8 @@ public:
 		auto& zmienialny_graf = *graf_;
 		const auto& graf = zmienialny_graf;
 
-		std::vector<GrafZFeromonami::edge_descriptor> edges;
-		{
-			auto list = boost::out_edges(pozycja_, graf);
-			std::copy(list.first, list.second, std::back_inserter(edges));
-		}
+		auto list = boost::out_edges(pozycja_, graf);
+		std::vector<GrafZFeromonami::edge_descriptor> edges(list.first, list.second);
 
 		if(edges.empty())
 			return false;
