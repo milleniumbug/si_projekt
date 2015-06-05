@@ -1,6 +1,6 @@
 - saturacja feromonów
-- sprawozdanie
-- wizualizacja z kolorkami i ca³ym grafem
+- sprawozdanie 
 - eksperymentowaæ dalej
 - regulowaæ poziom i iloœæ mrówek
-- usuwanie znalezionych klik
+- kolory na krawêdziach zrobione - teraz mo¿na np. zrobiæ kolory na wierzcho³kach
+- usuwanie znalezionych klik (milleniumbug: za du¿y wysi³ek do osi¹gniêtych efektów - dlaczego? bo jak masz kilka klik, to kolejne wywo³ania BFSów i tak nie chodz¹ po tych samych wierzcho³kach. ponadto usuniêcie pojedyñczego wierzcho³ka to operacja o z³o¿onoœci O(E + V), a pamiêtajmy o tym ¿e jest to wywo³ywane w pêtli)
