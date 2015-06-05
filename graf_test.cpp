@@ -94,7 +94,7 @@ template<typename RandomNumberGenerator, typename CliqueVisitor>
 void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerator& mt, CliqueVisitor visit, const double threshold_ratio)
 {
 	assert(threshold_ratio >= 0 && threshold_ratio <= 1);
-	mrowki(graf, mt, 50, 4);
+	mrowki(graf, mt, 50);
 
 	auto edges = boost::edges(graf);
 	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
