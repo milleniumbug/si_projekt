@@ -236,7 +236,7 @@ void testuj_kolejne(unsigned int seed)
 	std::cout << "\n";
 	test_wiele_klik(seed, threshold, 1, "out1.gv");
 	test_wiele_klik(seed, threshold, 5, "out2.gv");
-	test_wiele_klik(seed, threshold, 50, "out3.gv");
+	test_wiele_klik(seed, threshold, 1000, "out3.gv", 200, 500, 15);
 	test_wikipedia(seed, threshold, false, "out4.gv");
 	test_wikipedia(seed, threshold, true, "out5.gv");
 }
