@@ -63,6 +63,9 @@ struct clique_printer_with_name_map
 			++kt;
 		}
 		output << std::endl;
+		Clique k2 = kl;//klika_plus_sasiedzi(g, kl);
+		std::vector<GrafZFeromonami::edge_descriptor> edges = wierzcholki_kliki(g, k2);
+		serializuj_do_dot(output, g, k2.begin(), k2.end(), edges.begin(), edges.end(), -1.0, -1.0, namemap);
 	}
 	NameMap namemap;
 	OutputStream& output;
@@ -114,19 +117,21 @@ Clique klika_plus_sasiedzi(const GrafZFeromonami& graf, Clique klika)
 }
 
 template<typename Clique>
-std::unordered_set<GrafZFeromonami::edge_descriptor> wierzcholki_kliki(const GrafZFeromonami& graf, Clique klika)
+std::vector<GrafZFeromonami::edge_descriptor> wierzcholki_kliki(const GrafZFeromonami& graf, Clique klika)
 {
-	std::unordered_set<GrafZFeromonami::edge_descriptor> wierzcholki;
+	std::vector<GrafZFeromonami::edge_descriptor> wierzcholki;
 	for (auto& el : klika)
 	{
 		auto sasiednie = boost::out_edges(el, graf);
-		for (auto& edge : sasiednie)
+		auto src = sasiednie.first;
+		auto dst = sasiednie.second;
+		while (src != dst)
 		{
-			if ((std::find(wierzcholki.begin(), wierzcholki.end(), boost::target(edge, graf)) != wierzcholki.end())
-				&& (std::find(wierzcholki.begin(), wierzcholki.end(), boost::source(edge, graf)) != wierzcholki.end()))
+			if (std::find(klika.begin(), klika.end(), boost::target(*src, graf)) != klika.end())
 			{
-				wierzcholki.insert(edge);
+				wierzcholki.push_back(*src);
 			}
+			src++;
 		}
 	}
 	return wierzcholki;
