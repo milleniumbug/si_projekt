@@ -113,4 +113,22 @@ Clique klika_plus_sasiedzi(const GrafZFeromonami& graf, Clique klika)
 	return klika;
 }
 
+template<typename Clique>
+std::unordered_set<GrafZFeromonami::edge_descriptor> wierzcholki_kliki(const GrafZFeromonami& graf, Clique klika)
+{
+	std::unordered_set<GrafZFeromonami::edge_descriptor> wierzcholki;
+	for (auto& el : klika)
+	{
+		auto sasiednie = boost::out_edges(el, graf);
+		for (auto& edge : sasiednie)
+		{
+			if ((std::find(wierzcholki.begin(), wierzcholki.end(), boost::target(edge, graf)) != wierzcholki.end())
+				&& (std::find(wierzcholki.begin(), wierzcholki.end(), boost::source(edge, graf)) != wierzcholki.end()))
+			{
+				wierzcholki.insert(edge);
+			}
+		}
+	}
+	return wierzcholki;
+}
 #endif
