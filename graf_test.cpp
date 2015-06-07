@@ -94,7 +94,8 @@ template<typename RandomNumberGenerator, typename CliqueVisitor>
 void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerator& mt, CliqueVisitor visit, const double threshold_ratio)
 {
 	assert(threshold_ratio >= 0 && threshold_ratio <= 1);
-	mrowki(graf, mt, 50);
+	std::vector<GrafZFeromonami::vertex_descriptor> emptypos;
+	mrowki(graf, mt, 50,emptypos);
 
 	auto edges = boost::edges(graf);
 	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
@@ -165,7 +166,7 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 		if (continous) std::cout << "Continuing...\n";
 	} while (continous);
 	
-	kliki_klasycznie(graf, output);
+	//kliki_klasycznie(graf, output);
 	output << "\n\n";
 }
 
@@ -230,15 +231,15 @@ void test_wikipedia(const unsigned int seed, const double threshold, const bool 
 
 void testuj_kolejne(unsigned int seed)
 {
-	const double threshold = 0.0001;
+	const double threshold = 0.001;
 	std::cout << "SEED: " << seed << "\n";
 	std::cout << "THRESHOLD: " << threshold << "\n";
 	std::cout << "\n";
-	test_wiele_klik(seed, threshold, 1, "out1.gv");
-	test_wiele_klik(seed, threshold, 5, "out2.gv");
-	test_wiele_klik(seed, threshold, 1000, "out3.gv", 200, 500, 15);
+	//test_wiele_klik(seed, threshold, 1, "out1.gv");
+	//test_wiele_klik(seed, threshold, 5, "out2.gv");
+	//test_wiele_klik(seed, threshold, 1000, "out3.gv", 200, 500, 15);
 	test_wikipedia(seed, threshold, false, "out4.gv");
-	test_wikipedia(seed, threshold, true, "out5.gv");
+	//test_wikipedia(seed, threshold, true, "out5.gv");
 }
 
 void testuj_kolejne()

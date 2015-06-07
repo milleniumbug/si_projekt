@@ -68,7 +68,8 @@ public:
 
 			double poziom_feromonu = zmienialny_graf[e].feromony.load();
 			poziom_feromonu = obecny_poziom_feromonu(poziom_feromonu, nr_tury_);
-			poziom_feromonu = std::pow(poziom_feromonu, 1.1) + 1;
+			poziom_feromonu = std::pow(poziom_feromonu, 0.6) + 1;
+			if (poziom_feromonu > 1000) poziom_feromonu = 1000;//Limit
 			return poziom_feromonu;
 		});
 
@@ -141,7 +142,7 @@ public:
 };
 
 template<typename RandomNumberGenerator>
-void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_mrowek, const int ilosc_watkow = std::thread::hardware_concurrency())
+void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_mrowek, const std::vector<GrafZFeromonami::vertex_descriptor>& startpos, const int ilosc_watkow = std::thread::hardware_concurrency())
 {
 	typedef MrowkaKlika Mrowka;
 	const int ilosc_ruchow = 5000;
@@ -149,12 +150,17 @@ void mrowki(GrafZFeromonami& graf, RandomNumberGenerator& rng, const int ilosc_m
 
 	std::vector<std::vector<Mrowka>> mrowiska(ilosc_watkow);
 
-	auto wypeln_mrowiska = [&mrowiska, &graf, &rng, &ilosc_mrowek]()
+	auto wypeln_mrowiska = [&mrowiska, &graf, &rng, &ilosc_mrowek, &startpos]()
 	{
 		for(int i = 0; i < ilosc_mrowek; ++i)
 		{
+			GrafZFeromonami::vertex_descriptor curpos;
+			if (startpos.size() == 0)
+			{
+				curpos = boost::random_vertex(graf, rng);
+			} else curpos = startpos[i % startpos.size()];
 			const int obecne_mrowisko = i % mrowiska.size();
-			mrowiska[obecne_mrowisko].push_back(Mrowka(graf, boost::random_vertex(graf, rng), Mrowka::random_number_generator(rng())));
+			mrowiska[obecne_mrowisko].push_back(Mrowka(graf, curpos, Mrowka::random_number_generator(rng())));
 		}
 	};
 	wypeln_mrowiska();
