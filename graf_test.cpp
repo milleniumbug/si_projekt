@@ -37,7 +37,7 @@ std::vector<GrafZFeromonami::edge_descriptor> sort_edges(const GrafZFeromonami& 
 	return sorted_edges;
 }
 
-std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold)
+std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold, double max_threshold)
 {
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> klika;
 	std::deque<GrafZFeromonami::vertex_descriptor> do_odwiedzenia;
@@ -54,7 +54,7 @@ std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const Gra
 		{
 			double ilosc = graf[e].feromony.load();
 			auto t = boost::target(e, graf);
-			if(klika.find(t) == klika.end() && ilosc >= threshold)
+			if((klika.find(t) == klika.end()) && (ilosc >= threshold) && (ilosc<=max_threshold))
 			{
 				do_odwiedzenia.push_back(t);
 				klika.insert(t);
@@ -113,17 +113,17 @@ NameMap zaladujgraf(GrafZFeromonami& graf, std::string filename, std::string map
 }
 
 template<typename RandomNumberGenerator, typename CliqueVisitor>
-void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerator& mt, CliqueVisitor visit, const double threshold_ratio)
+void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerator& mt,NameMap namemap, CliqueVisitor visit, const double threshold_ratio)
 {
 	assert(threshold_ratio >= 0 && threshold_ratio <= 1);
 
 	czysc_feromony(graf);
 	std::vector<GrafZFeromonami::vertex_descriptor> emptypos;
-	mrowki(graf, mt, 50,emptypos);
+	mrowki(graf, mt, namemap,50,emptypos);
 
 	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges = sort_edges(graf);
 
-	czysc_feromony(graf);
+	/*czysc_feromony(graf);
 	std::vector<GrafZFeromonami::vertex_descriptor> top_vertexes;
 	for (auto edge : sorted_edges)
 	{
@@ -138,11 +138,10 @@ void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerat
 		top_vertexes.push_back(vertex);
 	}
 
-	mrowki(graf, mt, 50, top_vertexes);
+	mrowki(graf, mt, namemap, 500, top_vertexes);
 
+	sorted_edges.clear();*/
 	sorted_edges = sort_edges(graf);
-
-	const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
 
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> elementy_klik_oznaczone;
 	for(auto edge : sorted_edges)
@@ -150,21 +149,30 @@ void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerat
 		auto s = boost::source(edge, graf);
 		auto t = boost::target(edge, graf);
 
-		auto znajdz_i_wypisz_klike = [&visit, &threshold, &elementy_klik_oznaczone](const GrafZFeromonami& g, GrafZFeromonami::vertex_descriptor v)
+		auto znajdz_i_wypisz_klike = [&visit, &elementy_klik_oznaczone, &namemap, &threshold_ratio](const GrafZFeromonami& g, GrafZFeromonami::vertex_descriptor v,GrafZFeromonami::edge_descriptor e)
 		{
-			auto kl = znajdz_klike_w_punkcie(g, v, threshold);
+			const double threshold = threshold_ratio*g[e].feromony.load();
+			const double max_threshold = g[e].feromony.load() / threshold_ratio;
+
+			auto kl = znajdz_klike_w_punkcie(g, v, threshold, max_threshold);
+			if (kl.size() > 10)
+			{
+				std::cout << namemap[v] << " ";
+				std::cout << kl.size() << " ";
+				std::cout << std::endl;
+			}
 			elementy_klik_oznaczone.insert(kl.begin(), kl.end());
 			visit.clique(kl, g);
 		};
 
-		if(graf[edge].feromony.load() < threshold)
+		if(graf[edge].feromony.load() <= 0.0)
 			break;
 
 		if(!jest_w_zbiorze(elementy_klik_oznaczone, s))
-			znajdz_i_wypisz_klike(graf, s);
+			znajdz_i_wypisz_klike(graf, s,edge);
 
 		if(!jest_w_zbiorze(elementy_klik_oznaczone, t))
-			znajdz_i_wypisz_klike(graf, s);
+			znajdz_i_wypisz_klike(graf, t,edge);
 	}
 }
 
@@ -178,9 +186,9 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 	do
 	{
 		if(namemap.empty())
-			jackson_milleniumbug_all_cliques(graf, mt, unprint, threshold_ratio);
+			jackson_milleniumbug_all_cliques(graf, mt,namemap, unprint, threshold_ratio);
 		else
-			jackson_milleniumbug_all_cliques(graf, mt, name_unprint, threshold_ratio);
+			jackson_milleniumbug_all_cliques(graf, mt,namemap, name_unprint, threshold_ratio);
 
 		auto edges = boost::edges(graf);
 		std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
@@ -269,7 +277,7 @@ void test_wikipedia(const unsigned int seed, const double threshold, const bool 
 
 void testuj_kolejne(unsigned int seed)
 {
-	const double threshold = 0.001;
+	const double threshold = 0.1;
 	std::cout << "SEED: " << seed << "\n";
 	std::cout << "THRESHOLD: " << threshold << "\n";
 	std::cout << "\n";

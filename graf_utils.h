@@ -63,9 +63,13 @@ struct clique_printer_with_name_map
 			++kt;
 		}
 		output << std::endl;
+
 		Clique k2 = kl;//klika_plus_sasiedzi(g, kl);
-		std::vector<GrafZFeromonami::edge_descriptor> edges = wierzcholki_kliki(g, k2);
-		serializuj_do_dot(output, g, k2.begin(), k2.end(), edges.begin(), edges.end(), -1.0, -1.0, namemap);
+		if (kl.size() < 100)
+		{
+			std::vector<GrafZFeromonami::edge_descriptor> edges = wierzcholki_kliki(g, k2);
+			serializuj_do_dot(output, g, k2.begin(), k2.end(), edges.begin(), edges.end(),-1.0, -1.0, namemap);
+		}
 	}
 	NameMap namemap;
 	OutputStream& output;
