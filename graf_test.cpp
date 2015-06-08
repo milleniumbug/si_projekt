@@ -15,6 +15,17 @@ void usun_klike(std::vector<GrafZFeromonami::vertex_descriptor> vertexlist, Graf
 	}
 }
 
+void czysc_feromony(GrafZFeromonami& graf)
+{
+	auto edges = boost::edges(graf);
+	auto edge = edges.first;
+	while (edge != edges.second)
+	{
+		graf[*edge].feromony = 0.0;
+		edge++;
+	}
+}
+
 std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold)
 {
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> klika;
