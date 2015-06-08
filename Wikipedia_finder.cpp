@@ -6,5 +6,5 @@
 
 int main()
 {
-	testuj_kolejne();
+	testuj_kolejne(3967922245);
 }

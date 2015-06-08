@@ -164,8 +164,6 @@ void test(GrafZFeromonami& graf, boost::random::mt19937& mt, double threshold_ra
 		output << "\n\n";
 		if (continous) std::cout << "Continuing...\n";
 	} while (continous);
-	
-	kliki_klasycznie(graf, output);
 	output << "\n\n";
 }
 
@@ -238,7 +236,6 @@ void testuj_kolejne(unsigned int seed)
 	test_wiele_klik(seed, threshold, 5, "out2.gv");
 	test_wiele_klik(seed, threshold, 1000, "out3.gv", 200, 500, 15);
 	test_wikipedia(seed, threshold, false, "out4.gv");
-	test_wikipedia(seed, threshold, true, "out5.gv");
 }
 
 void testuj_kolejne()
