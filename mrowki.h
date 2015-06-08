@@ -123,20 +123,14 @@ public:
 	double ocen_wierzcholek(GrafZFeromonami::vertex_descriptor ten_wierzcholek, const std::vector<GrafZFeromonami::vertex_descriptor>& sasiedzi)
 	{
 		assert(!sasiedzi.empty());
-		double ile_wspolnych_twoback = std::count_if(sasiedzi.begin(), sasiedzi.end(), [&](GrafZFeromonami::vertex_descriptor v)
-		{
-			return std::find(poprzedni_wspolni.begin(), poprzedni_wspolni.end(), v) != poprzedni_zbior.end();
-		});//Tutaj patrzymy na poprzedni wspolny zbior i na nowy zbior, powinno zapobiegac znajdowaniu bliskich klik.
-		poprzedni_wspolni.clear();
+
 		double ile_wspolnych = std::count_if(sasiedzi.begin(), sasiedzi.end(), [&](GrafZFeromonami::vertex_descriptor v)
 		{
-			bool b = std::find(poprzedni_zbior.begin(), poprzedni_zbior.end(), v) != poprzedni_zbior.end();
-			if(b) poprzedni_wspolni.push_back(v);
-			return b;
-		});//Tutaj patrzymy na poprzedni zbior i na nowy zbior, dodajac do zbioru wspolnych ktory bedzie uzyty w nastepnym ruchu.
+			return std::find(poprzedni_zbior.begin(), poprzedni_zbior.end(), v) != poprzedni_zbior.end();
+		});
 		double ilosc_sasiadow = sasiedzi.size();
 		poprzedni_zbior = sasiedzi;
-		return (ile_wspolnych_twoback / ilosc_sasiadow) * 200 * std::pow(ilosc_sasiadow, 0.75) + (ile_wspolnych / ilosc_sasiadow) * 80 * std::pow(ilosc_sasiadow, 0.5);
+		return (ile_wspolnych / ilosc_sasiadow) * 200 * std::pow(ilosc_sasiadow, 0.75);
 	}
 };
 
