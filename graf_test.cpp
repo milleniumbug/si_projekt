@@ -26,6 +26,17 @@ void czysc_feromony(GrafZFeromonami& graf)
 	}
 }
 
+std::vector<GrafZFeromonami::edge_descriptor> sort_edges(const GrafZFeromonami& graf)
+{
+	auto edges = boost::edges(graf);
+	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
+	std::sort(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor lhs, GrafZFeromonami::edge_descriptor rhs)
+	{
+		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
+	});
+	return sorted_edges;
+}
+
 std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold)
 {
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> klika;
@@ -105,15 +116,31 @@ template<typename RandomNumberGenerator, typename CliqueVisitor>
 void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerator& mt, CliqueVisitor visit, const double threshold_ratio)
 {
 	assert(threshold_ratio >= 0 && threshold_ratio <= 1);
+
+	czysc_feromony(graf);
 	std::vector<GrafZFeromonami::vertex_descriptor> emptypos;
 	mrowki(graf, mt, 50,emptypos);
 
-	auto edges = boost::edges(graf);
-	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges(edges.first, edges.second);
-	std::sort(sorted_edges.begin(), sorted_edges.end(), [&](GrafZFeromonami::edge_descriptor lhs, GrafZFeromonami::edge_descriptor rhs)
+	std::vector<GrafZFeromonami::edge_descriptor> sorted_edges = sort_edges(graf);
+
+	czysc_feromony(graf);
+	std::vector<GrafZFeromonami::vertex_descriptor> top_vertexes;
+	for (auto edge : sorted_edges)
 	{
-		return graf[lhs].feromony.load() > graf[rhs].feromony.load();
-	});
+		boost::random::uniform_int_distribution<> dice_rool(0, 1);
+		int r = dice_rool(mt);
+		GrafZFeromonami::vertex_descriptor vertex;
+		if (r == 0)
+		{
+			vertex = boost::target(edge, graf);
+		}
+		else vertex = boost::source(edge, graf);
+		top_vertexes.push_back(vertex);
+	}
+
+	mrowki(graf, mt, 50, top_vertexes);
+
+	sorted_edges = sort_edges(graf);
 
 	const double threshold = threshold_ratio*graf[sorted_edges.front()].feromony.load();
 
