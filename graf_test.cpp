@@ -37,6 +37,32 @@ std::vector<GrafZFeromonami::edge_descriptor> sort_edges(const GrafZFeromonami& 
 	return sorted_edges;
 }
 
+double missing_elems(const GrafZFeromonami& graf, std::vector<GrafZFeromonami::vertex_descriptor> kl)
+{
+	int x = 0;
+	for (auto elem : kl)
+	{
+		for (auto elem2 : kl)
+		{
+			boost::graph_traits<GrafZFeromonami>::out_edge_iterator ei, ei_end;
+			boost::tie(ei, ei_end) = boost::out_edges(elem, graf);
+			while (ei != ei_end)
+			{
+				if (((boost::source(*ei, graf) == elem) && (boost::target(*ei, graf) == elem2))||
+					((boost::source(*ei, graf) == elem2) && (boost::target(*ei, graf) == elem)))
+				{
+					x++;
+					break;
+				}
+				++ei;
+			}
+		}
+	}
+	assert(x <= 0);
+	double r = static_cast<double>(x) / (kl.size()*(kl.size()));
+	return r;
+}
+
 std::vector<GrafZFeromonami::vertex_descriptor> znajdz_klike_w_punkcie(const GrafZFeromonami& graf, GrafZFeromonami::vertex_descriptor v, double threshold, double max_threshold)
 {
 	std::unordered_set<GrafZFeromonami::vertex_descriptor> klika;
@@ -159,6 +185,7 @@ void jackson_milleniumbug_all_cliques(GrafZFeromonami& graf, RandomNumberGenerat
 			{
 				std::cout << namemap[v] << " ";
 				std::cout << kl.size() << " ";
+				std::cout << missing_elems(g,kl)*100 << "%";
 				std::cout << std::endl;
 			}
 			elementy_klik_oznaczone.insert(kl.begin(), kl.end());

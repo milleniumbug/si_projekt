@@ -137,7 +137,7 @@ public:
 		});//Tutaj patrzymy na poprzedni zbior i na nowy zbior, dodajac do zbioru wspolnych ktory bedzie uzyty w nastepnym ruchu.
 		double ilosc_sasiadow = sasiedzi.size();
 		poprzedni_zbior = sasiedzi;
-		return (ile_wspolnych_twoback / ilosc_sasiadow) * 200 * std::pow(ilosc_sasiadow, 0.75) + (ile_wspolnych / ilosc_sasiadow) * 80 * std::pow(ilosc_sasiadow, 0.5);
+		return (ile_wspolnych_twoback / ilosc_sasiadow) * 200 * std::pow(ilosc_sasiadow, 0.75);// +(ile_wspolnych / ilosc_sasiadow) * 80 * std::pow(ilosc_sasiadow, 0.5);
 	}
 };
 
